@@ -6,3 +6,8 @@ AGENTV_SIGNING_KEY
 
 # Saying once what the project used to be called.
 used to be called AgenTV
+
+# Stable's release from before the rename, published under the old package
+# name, and the plan's test of it.
+^bin/plan:.*\(origaitv\|agentv\)-
+^test/plan-test\.sh:.*agentv-0\.2\.0-1-any
