@@ -7,7 +7,7 @@ body:
       value: |
         Thanks for telling me. Please leave out keys, passwords and anything from your own accounts.
 
-        Found a security problem? Don't write it here. [Tell me privately](https://github.com/radomird/agentv-pkgs/security/advisories/new) instead.
+        Found a security problem? Don't write it here. [Tell me privately](https://github.com/radomird/origaitv-pkgs/security/advisories/new) instead.
 
   - type: textarea
     id: happened
@@ -27,8 +27,8 @@ body:
   - type: input
     id: release
     attributes:
-      label: AgenTV release
-      description: It's in _Settings > System > About_ on the TV. Or run `agentv version` on the box.
+      label: origaiTV release
+      description: It's in _Settings > System > About_ on the TV. Or run `origaitv version` on the box.
       placeholder: e.g. 1.0.0
     validations:
       required: true
@@ -37,7 +37,7 @@ body:
     id: channel
     attributes:
       label: Channel
-      description: "`agentv version` prints it after the release."
+      description: "`origaitv version` prints it after the release."
       options:
         - stable
         - edge

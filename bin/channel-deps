@@ -1,22 +1,22 @@
 #!/bin/bash
 
-# Says which of AgenTV's own packages a channel's agentv depends on, and
+# Says which of origaiTV's own packages a channel's origaitv depends on, and
 # checks the channel has each of them.
 #
-# A channel's packages aren't all built every time. agentv-voice was built
-# for 0.1.x and 0.2.0 and isn't any more, and stable's agentv 0.2.0 still
+# A channel's packages aren't all built every time. origaitv-voice was built
+# for 0.1.x and 0.2.0 and isn't any more, and stable's origaitv 0.2.0 still
 # depends on it. So a build has to keep a published package its channel's
-# agentv needs, and a publish must never go out without one: a box can't
-# install agentv from a channel that lacks it.
+# origaitv needs, and a publish must never go out without one: a box can't
+# install origaitv from a channel that lacks it.
 #
-#   bin/channel-deps <repo-dir> <agentv-package>
+#   bin/channel-deps <repo-dir> <origaitv-package>
 #       Prints, a line each, the file in <repo-dir> of every package
-#       <agentv-package> depends on whose name starts with agentv-, the
+#       <origaitv-package> depends on whose name starts with origaitv-, the
 #       newest version when there's more than one. Fails, naming it, when
 #       one of them isn't in <repo-dir>. bin/build keeps what it prints.
 #   bin/channel-deps --db <repo-dir>
-#       Checks <repo-dir> is a whole channel: one agentv package, and its
-#       agentv.db lists that agentv and every one of AgenTV's packages it
+#       Checks <repo-dir> is a whole channel: one origaitv package, and its
+#       origaitv.db lists that origaitv and every one of origaiTV's packages it
 #       depends on, each with its file in <repo-dir>. bin/publish runs this
 #       before it uploads anything.
 #
@@ -26,7 +26,7 @@
 set -euo pipefail
 
 usage() {
-  echo "usage: bin/channel-deps <repo-dir> <agentv-package> | --db <repo-dir>" >&2
+  echo "usage: bin/channel-deps <repo-dir> <origaitv-package> | --db <repo-dir>" >&2
   exit 2
 }
 
@@ -44,11 +44,11 @@ info() {
   '
 }
 
-# What a package depends on whose name is one of AgenTV's, a name a line,
+# What a package depends on whose name is one of origaiTV's, a name a line,
 # with any version limit taken off.
 needs() {
   tar -xOf "$1" .PKGINFO 2>/dev/null | awk -F' = ' '$1 == "depend" { print $2 }' |
-    sed -E 's/[<>=].*$//' | grep -E '^agentv-' | sort -u || true
+    sed -E 's/[<>=].*$//' | grep -E '^origaitv-' | sort -u || true
 }
 
 # The newest file in $1 that is package $2, or nothing.
@@ -67,39 +67,39 @@ newest() {
 }
 
 deps() {
-  local dir=$1 agentv=$2 want file
-  [[ -f $agentv ]] || stop "No agentv package at $agentv."
+  local dir=$1 origaitv=$2 want file
+  [[ -f $origaitv ]] || stop "No origaitv package at $origaitv."
   while IFS= read -r want; do
     [[ -n $want ]] || continue
     file=$(newest "$dir" "$want") ||
-      stop "agentv ($(info "$agentv")) depends on $want, and this channel doesn't have it. A box couldn't install agentv from it, so nothing is built or published. Put $want back on the channel first."
+      stop "origaitv ($(info "$origaitv")) depends on $want, and this channel doesn't have it. A box couldn't install origaitv from it, so nothing is built or published. Put $want back on the channel first."
     echo "${file##*/}"
-  done < <(needs "$agentv")
+  done < <(needs "$origaitv")
 }
 
 db() {
-  local dir=$1 agentv name version file listed want
+  local dir=$1 origaitv name version file listed want
   local -a found=()
-  for file in "$dir"/agentv-[0-9]*.pkg.tar.zst; do
+  for file in "$dir"/origaitv-[0-9]*.pkg.tar.zst; do
     [[ -f $file ]] && found+=("$file")
   done
-  (( ${#found[@]} == 1 )) || stop "A channel has one agentv package, and $dir has ${#found[@]}."
-  agentv=${found[0]}
-  [[ -f $dir/agentv.db ]] || stop "$dir has no agentv.db."
-  listed=$(tar -tzf "$dir/agentv.db" | sed -n 's#^\([^/]*\)/$#\1#p') || stop "$dir/agentv.db can't be read."
+  (( ${#found[@]} == 1 )) || stop "A channel has one origaitv package, and $dir has ${#found[@]}."
+  origaitv=${found[0]}
+  [[ -f $dir/origaitv.db ]] || stop "$dir has no origaitv.db."
+  listed=$(tar -tzf "$dir/origaitv.db" | sed -n 's#^\([^/]*\)/$#\1#p') || stop "$dir/origaitv.db can't be read."
 
-  read -r name version < <(info "$agentv") || stop "${agentv##*/} has no .PKGINFO."
-  grep -qx -- "$name-$version" <<<"$listed" || stop "agentv.db doesn't list ${agentv##*/}."
+  read -r name version < <(info "$origaitv") || stop "${origaitv##*/} has no .PKGINFO."
+  grep -qx -- "$name-$version" <<<"$listed" || stop "origaitv.db doesn't list ${origaitv##*/}."
   while IFS= read -r want; do
     [[ -n $want ]] || continue
     file=$(newest "$dir" "$want") ||
-      stop "agentv $version depends on $want, and this channel's folder doesn't have it. Nothing is published: a box couldn't install agentv from it."
+      stop "origaitv $version depends on $want, and this channel's folder doesn't have it. Nothing is published: a box couldn't install origaitv from it."
     read -r name version < <(info "$file")
     grep -qx -- "$name-$version" <<<"$listed" ||
-      stop "agentv depends on $want, and agentv.db doesn't list it (${file##*/} is in the folder). Nothing is published: a box couldn't install agentv from it."
+      stop "origaitv depends on $want, and origaitv.db doesn't list it (${file##*/} is in the folder). Nothing is published: a box couldn't install origaitv from it."
     [[ -s $file.sig ]] || stop "${file##*/} has no signature beside it."
-  done < <(needs "$agentv")
-  echo "agentv.db lists agentv and every one of AgenTV's packages it depends on."
+  done < <(needs "$origaitv")
+  echo "origaitv.db lists origaitv and every one of origaiTV's packages it depends on."
 }
 
 case ${1:-} in

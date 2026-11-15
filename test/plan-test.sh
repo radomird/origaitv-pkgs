@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Checks what bin/plan lets through to be built, signed and published: only
-# a commit agentv-os's agentv branch has, whether a release tag, the Check
-# run or a run by hand names it. And which tag is a release: agentv-v1.0.0,
+# a commit origaitv-os's agentv branch has, whether a release tag, the Check
+# run or a run by hand names it. And which tag is a release: origaitv-v1.0.0,
 # or v0.2.0 from the 0.x days, the highest version being stable's. Never a
 # candidate's tag, and never one of Omarchy's own v1 to v4 tags. A stand-in
 # for gh is first on PATH and answers from a folder of files, so nothing
@@ -65,12 +65,12 @@ jq -r "$filter" "$file"
 GH
 chmod +x "$work/bin/gh"
 
-OS=repos/someone/agentv-os
-on_agentv=$(printf 'a%.0s' {1..40})     # a commit agentv has
-head=$(printf 'b%.0s' {1..40})          # agentv's newest commit
+OS=repos/someone/origaitv-os
+on_origaitv=$(printf 'a%.0s' {1..40})     # a commit origaitv has
+head=$(printf 'b%.0s' {1..40})          # origaitv's newest commit
 unmerged=$(printf 'c%.0s' {1..40})      # a commit on a branch that isn't merged
 tag_object=$(printf 'd%.0s' {1..40})    # a tag with a message of its own
-one=$(printf 'f%.0s' {1..40})           # the commit 1.0.0 is on, which agentv has
+one=$(printf 'f%.0s' {1..40})           # the commit 1.0.0 is on, which origaitv has
 
 answer() {
   local path=$1
@@ -83,7 +83,7 @@ answer_file() { echo "$GITHUB_FAKE/${1//[\/?]/_}"; }
 # GitHub has no answer for that path any more.
 forget() { unlink "$(answer_file "$1")"; }
 
-# The tags agentv-os answers with for one of the two ways a release tag
+# The tags origaitv-os answers with for one of the two ways a release tag
 # starts.
 tags() {
   local start=$1
@@ -91,25 +91,25 @@ tags() {
   printf '%s\n' "$@" | jq -Rn '[inputs | select(. != "") | {ref: "refs/tags/\(.)"}]' >"$(answer_file "$OS/git/matching-refs/tags/$start")"
 }
 
-# agentv-os with three 0.x release tags (the newest, v0.2.0, on a commit
-# agentv has), Omarchy's own tags, no agentv-v tag yet, a green Check run
-# on agentv's newest commit, and nothing published yet.
+# origaitv-os with three 0.x release tags (the newest, v0.2.0, on a commit
+# origaitv has), Omarchy's own tags, no origaitv-v tag yet, a green Check run
+# on origaitv's newest commit, and nothing published yet.
 github() {
   export GITHUB_FAKE="$work/github"
   [[ ! -d $GITHUB_FAKE ]] || find "$GITHUB_FAKE" -mindepth 1 -delete
   mkdir -p "$GITHUB_FAKE"
   tags v0. v0.2.0 v0.1.4 v0.10.0-rc1 v0.1.0
-  tags agentv-v
-  answer "$OS/git/ref/tags/v0.2.0" --arg sha "$on_agentv" '{object: {type: "commit", sha: $sha}}'
+  tags origaitv-v
+  answer "$OS/git/ref/tags/v0.2.0" --arg sha "$on_origaitv" '{object: {type: "commit", sha: $sha}}'
   answer "$OS/git/ref/tags/v0.1.4" --arg sha "$tag_object" '{object: {type: "tag", sha: $sha}}'
-  answer "$OS/git/tags/$tag_object" --arg sha "$on_agentv" '{object: {type: "commit", sha: $sha}}'
-  # Omarchy's v4.0.6 is in agentv's history, so its commit is one agentv has.
-  answer "$OS/git/ref/tags/v4.0.6" --arg sha "$on_agentv" '{object: {type: "commit", sha: $sha}}'
-  answer "$OS/git/ref/tags/agentv-v1.0.0" --arg sha "$one" '{object: {type: "commit", sha: $sha}}'
-  answer "$OS/git/ref/tags/agentv-v1.0.0-rc1" --arg sha "$on_agentv" '{object: {type: "commit", sha: $sha}}'
+  answer "$OS/git/tags/$tag_object" --arg sha "$on_origaitv" '{object: {type: "commit", sha: $sha}}'
+  # Omarchy's v4.0.6 is in origaitv's history, so its commit is one origaitv has.
+  answer "$OS/git/ref/tags/v4.0.6" --arg sha "$on_origaitv" '{object: {type: "commit", sha: $sha}}'
+  answer "$OS/git/ref/tags/origaitv-v1.0.0" --arg sha "$one" '{object: {type: "commit", sha: $sha}}'
+  answer "$OS/git/ref/tags/origaitv-v1.0.0-rc1" --arg sha "$on_origaitv" '{object: {type: "commit", sha: $sha}}'
   answer "$OS/actions/workflows/check.yml/runs?branch=agentv&event=push&status=success&per_page=1" \
     --arg sha "$head" '{workflow_runs: [{head_sha: $sha}]}'
-  answer "$OS/compare/$on_agentv...agentv" '{status: "ahead"}'
+  answer "$OS/compare/$on_origaitv...agentv" '{status: "ahead"}'
   answer "$OS/compare/$one...agentv" '{status: "ahead"}'
   answer "$OS/compare/$head...agentv" '{status: "identical"}'
   answer "$OS/compare/$unmerged...agentv" '{status: "diverged"}'
@@ -117,8 +117,8 @@ github() {
 
 plan() {
   : >"$work/refused"
-  env PATH="$work/bin:$PATH" GITHUB_REPOSITORY_OWNER=someone GITHUB_REPOSITORY=someone/agentv-pkgs \
-    AGENTV_PLAN_REFUSED="$work/refused" "$ROOT/bin/plan" "$@" 2>"$work/plan.err"
+  env PATH="$work/bin:$PATH" GITHUB_REPOSITORY_OWNER=someone GITHUB_REPOSITORY=someone/origaitv-pkgs \
+    ORIGAITV_PLAN_REFUSED="$work/refused" "$ROOT/bin/plan" "$@" 2>"$work/plan.err"
 }
 # The plan is exactly this.
 plans() {
@@ -145,45 +145,45 @@ never_asked() { ! grep -E -- "$1" "$GITHUB_FAKE/calls"; }
 # --- A run by hand -----------------------------------------------------------
 
 github
-check "by hand, a commit agentv has is built" \
-  plans "[{\"channel\":\"edge\",\"ref\":\"commit=$on_agentv\"}]" edge "commit=$on_agentv"
-check "and agentv's newest commit" \
+check "by hand, a commit origaitv has is built" \
+  plans "[{\"channel\":\"edge\",\"ref\":\"commit=$on_origaitv\"}]" edge "commit=$on_origaitv"
+check "and origaitv's newest commit" \
   plans "[{\"channel\":\"edge\",\"ref\":\"commit=$head\"}]" edge "commit=$head"
 check "a release tag is built at the commit it's on" \
-  plans "[{\"channel\":\"stable\",\"ref\":\"commit=$on_agentv\"}]" stable tag=v0.2.0
+  plans "[{\"channel\":\"stable\",\"ref\":\"commit=$on_origaitv\"}]" stable tag=v0.2.0
 check "a tag with a message of its own too" \
-  plans "[{\"channel\":\"stable\",\"ref\":\"commit=$on_agentv\"}]" stable tag=v0.1.4
-check "a release from 1.0 on is tagged agentv-v1.0.0, and built at its commit" \
-  plans "[{\"channel\":\"stable\",\"ref\":\"commit=$one\"}]" stable tag=agentv-v1.0.0
+  plans "[{\"channel\":\"stable\",\"ref\":\"commit=$on_origaitv\"}]" stable tag=v0.1.4
+check "a release from 1.0 on is tagged origaitv-v1.0.0, and built at its commit" \
+  plans "[{\"channel\":\"stable\",\"ref\":\"commit=$one\"}]" stable tag=origaitv-v1.0.0
 check "a candidate's tag can be built as edge" \
-  plans "[{\"channel\":\"edge\",\"ref\":\"commit=$on_agentv\"}]" edge tag=agentv-v1.0.0-rc1
+  plans "[{\"channel\":\"edge\",\"ref\":\"commit=$on_origaitv\"}]" edge tag=origaitv-v1.0.0-rc1
 check "and never as stable" \
-  stops "stable is never built from one" stable tag=agentv-v1.0.0-rc1
-check "one of Omarchy's own tags isn't a release of AgenTV's, though agentv has its commit" \
-  stops "isn't one of AgenTV's release tags" stable tag=v4.0.6
-check "nor is v1.0.0: from 1.0 on the tag says agentv" \
-  stops "isn't one of AgenTV's release tags" stable tag=v1.0.0
-check "nor an old-style candidate" stops "isn't one of AgenTV's release tags" edge tag=v0.10.0-rc1
-for zero in agentv-v01.0.0 agentv-v1.00.0 v0.02.0 agentv-v1.0.0-rc01 agentv-v1.0.0-rc0; do
-  check "a number with a leading zero isn't a release: $zero" stops "isn't one of AgenTV's release tags" edge "tag=$zero"
+  stops "stable is never built from one" stable tag=origaitv-v1.0.0-rc1
+check "one of Omarchy's own tags isn't a release of origaiTV's, though origaitv has its commit" \
+  stops "isn't one of origaiTV's release tags" stable tag=v4.0.6
+check "nor is v1.0.0: from 1.0 on the tag says origaitv" \
+  stops "isn't one of origaiTV's release tags" stable tag=v1.0.0
+check "nor an old-style candidate" stops "isn't one of origaiTV's release tags" edge tag=v0.10.0-rc1
+for zero in origaitv-v01.0.0 origaitv-v1.00.0 v0.02.0 origaitv-v1.0.0-rc01 origaitv-v1.0.0-rc0; do
+  check "a number with a leading zero isn't a release: $zero" stops "isn't one of origaiTV's release tags" edge "tag=$zero"
 done
 
-check "a commit agentv doesn't have stops the run" \
+check "a commit origaitv doesn't have stops the run" \
   stops "agentv branch doesn't have commit=$unmerged" edge "commit=$unmerged"
 check "on stable too" \
   stops "agentv branch doesn't have commit=$unmerged" stable "commit=$unmerged"
 check "a commit GitHub doesn't know stops the run" \
   stops "agentv branch doesn't have" edge "commit=$(printf 'e%.0s' {1..40})"
 answer "$OS/git/ref/tags/v0.3.0" --arg sha "$unmerged" '{object: {type: "commit", sha: $sha}}'
-check "a release tag on a commit agentv doesn't have stops the run" \
+check "a release tag on a commit origaitv doesn't have stops the run" \
   stops "agentv branch doesn't have tag=v0.3.0" stable tag=v0.3.0
 check "a tag that isn't there stops the run" \
   stops "Couldn't find the commit" stable tag=v0.9.9
 check "a short commit isn't taken" stops "isn't a whole commit" edge commit=aaaaaaa
 check "a branch isn't taken as a commit" stops "isn't a whole commit" edge commit=some-branch
-check "nor as a tag" stops "isn't one of AgenTV's release tags" stable tag=some-branch
-check "nor any other kind of ref" stops "A ref is tag=agentv-v1.0.0 or commit=<sha>" edge branch=some-branch
-check "a channel is edge or stable" stops "The channel is edge or stable" rc "commit=$on_agentv"
+check "nor as a tag" stops "isn't one of origaiTV's release tags" stable tag=some-branch
+check "nor any other kind of ref" stops "A ref is tag=origaitv-v1.0.0 or commit=<sha>" edge branch=some-branch
+check "a channel is edge or stable" stops "The channel is edge or stable" rc "commit=$on_origaitv"
 
 # --- The hourly run ----------------------------------------------------------
 
@@ -192,85 +192,85 @@ edge_only="[{\"channel\":\"edge\",\"ref\":\"commit=$head\"}]"
 
 github
 check "the hourly run plans the newest release tag and the newest green commit, each as its commit" \
-  plans "$(both "$on_agentv")"
+  plans "$(both "$on_origaitv")"
 check "and leaves nothing out" left_nothing_out
-check "it asks about nothing but agentv-os and what's published" \
-  bash -c "! grep -vE '^(api (--paginate )?repos/someone/agentv-os/|release view (edge|stable) -R someone/agentv-pkgs )' '$GITHUB_FAKE/calls'"
+check "it asks about nothing but origaitv-os and what's published" \
+  bash -c "! grep -vE '^(api (--paginate )?repos/someone/origaitv-os/|release view (edge|stable) -R someone/origaitv-pkgs )' '$GITHUB_FAKE/calls'"
 check "it never lists every tag, which would bring Omarchy's" \
-  never_asked 'agentv-os/tags|matching-refs/tags/(v|v[1-9][^ ]*)?( |$)'
+  never_asked 'origaitv-os/tags|matching-refs/tags/(v|v[1-9][^ ]*)?( |$)'
 
 github
 answer "$OS/git/ref/tags/v0.2.0" --arg sha "$unmerged" '{object: {type: "commit", sha: $sha}}'
-check "a release tag on a commit agentv doesn't have is left out, and edge still builds" plans "$edge_only"
+check "a release tag on a commit origaitv doesn't have is left out, and edge still builds" plans "$edge_only"
 check "and the run says so" says "agentv branch doesn't have tag=v0.2.0"
 check "and so does the list the workflow opens an issue from" left_out "agentv branch doesn't have tag=v0.2.0"
 check "with --all as well" plans "$edge_only" --all
 
 github
 answer "$OS/compare/$head...agentv" '{status: "diverged"}'
-check "a green commit agentv no longer has is left out, and stable still builds" \
-  plans "[{\"channel\":\"stable\",\"ref\":\"commit=$on_agentv\"}]"
+check "a green commit origaitv no longer has is left out, and stable still builds" \
+  plans "[{\"channel\":\"stable\",\"ref\":\"commit=$on_origaitv\"}]"
 check "and that's in the list too" left_out "agentv branch doesn't have commit=$head"
 
 github
-forget "$OS/compare/$on_agentv...agentv"
+forget "$OS/compare/$on_origaitv...agentv"
 check "with no answer about a commit, it's left out" plans "$edge_only"
 
 github
-forget "$OS/git/matching-refs/tags/agentv-v"
+forget "$OS/git/matching-refs/tags/origaitv-v"
 check "when the release tags can't be listed, stable is left out and edge still builds" plans "$edge_only"
-check "and the list says so" left_out "Couldn't list agentv-os's release tags"
+check "and the list says so" left_out "Couldn't list origaitv-os's release tags"
 
 github
-jq -n '{assets: [{name: "agentv-0.2.0-1-any.pkg.tar.zst"}]}' >"$GITHUB_FAKE/release-stable"
-jq -n --arg sha "$head" '{assets: [{name: "agentv-0.2.0.r3.g\($sha[0:7])-1-any.pkg.tar.zst"}]}' >"$GITHUB_FAKE/release-edge"
+jq -n '{assets: [{name: "origaitv-0.2.0-1-any.pkg.tar.zst"}]}' >"$GITHUB_FAKE/release-stable"
+jq -n --arg sha "$head" '{assets: [{name: "origaitv-0.2.0.r3.g\($sha[0:7])-1-any.pkg.tar.zst"}]}' >"$GITHUB_FAKE/release-edge"
 check "what's published already isn't planned again" plans "[]"
-check "but --all plans it" plans "$(both "$on_agentv")" --all
+check "but --all plans it" plans "$(both "$on_origaitv")" --all
 # git writes as much of a commit's name as it needs to tell commits apart,
-# and agentv-os is big enough for nine.
-jq -n --arg sha "$head" '{assets: [{name: "agentv-0.2.0.r532.g\($sha[0:9])-1-any.pkg.tar.zst"}]}' >"$GITHUB_FAKE/release-edge"
+# and origaitv-os is big enough for nine.
+jq -n --arg sha "$head" '{assets: [{name: "origaitv-0.2.0.r532.g\($sha[0:9])-1-any.pkg.tar.zst"}]}' >"$GITHUB_FAKE/release-edge"
 check "an edge package that names its commit with nine letters is published already too" plans "[]"
-jq -n --arg sha "$on_agentv" '{assets: [{name: "agentv-0.2.0.r531.g\($sha[0:9])-1-any.pkg.tar.zst"}]}' >"$GITHUB_FAKE/release-edge"
+jq -n --arg sha "$on_origaitv" '{assets: [{name: "origaitv-0.2.0.r531.g\($sha[0:9])-1-any.pkg.tar.zst"}]}' >"$GITHUB_FAKE/release-edge"
 check "and one from another commit isn't" plans "$edge_only"
 
 # --- Which tag is the newest release ------------------------------------------
 
 github
-tags agentv-v agentv-v1.0.0
-check "with v0.2.0 and agentv-v1.0.0 side by side, 1.0.0 is the newest release" plans "$(both "$one")"
-jq -n '{assets: [{name: "agentv-1.0.0-1-any.pkg.tar.zst"}]}' >"$GITHUB_FAKE/release-stable"
+tags origaitv-v origaitv-v1.0.0
+check "with v0.2.0 and origaitv-v1.0.0 side by side, 1.0.0 is the newest release" plans "$(both "$one")"
+jq -n '{assets: [{name: "origaitv-1.0.0-1-any.pkg.tar.zst"}]}' >"$GITHUB_FAKE/release-stable"
 check "and once 1.0.0 is published, stable isn't planned again" plans "$edge_only"
-jq -n '{assets: [{name: "agentv-1.0.0.r2.gabcdef012-1-any.pkg.tar.zst"}]}' >"$GITHUB_FAKE/release-stable"
+jq -n '{assets: [{name: "origaitv-1.0.0.r2.gabcdef012-1-any.pkg.tar.zst"}]}' >"$GITHUB_FAKE/release-stable"
 check "a package that only starts with the release's version isn't the release" plans "$(both "$one")"
 
 github
-tags agentv-v agentv-v1.0.0-rc1 agentv-v1.0.0-rc2 agentv-v1.1.0-rc1
-check "a candidate's tag never moves stable: it stays on the release before" plans "$(both "$on_agentv")"
+tags origaitv-v origaitv-v1.0.0-rc1 origaitv-v1.0.0-rc2 origaitv-v1.1.0-rc1
+check "a candidate's tag never moves stable: it stays on the release before" plans "$(both "$on_origaitv")"
 check "and nothing is left out by that" left_nothing_out
 check "nobody even asks where a candidate's tag is" never_asked '-rc'
 
 github
-tags agentv-v agentv-v1.0.0 agentv-v1.0.0-rc1 agentv-v1.0.1-rc1
+tags origaitv-v origaitv-v1.0.0 origaitv-v1.0.0-rc1 origaitv-v1.0.1-rc1
 check "with candidates before and after it, the release is stable's" plans "$(both "$one")"
 
 github
 tags v0. v0.2.0 v0.9.0junk v0.2 v0.3.0-rc1
-tags agentv-v agentv-v2 agentv-v9.9.9-beta agentv-v9.9.9.1 agentv-vnext agentv-v09.0.0 agentv-v9.09.0
-check "a tag that only looks like a release isn't one" plans "$(both "$on_agentv")"
+tags origaitv-v origaitv-v2 origaitv-v9.9.9-beta origaitv-v9.9.9.1 origaitv-vnext origaitv-v09.0.0 origaitv-v9.09.0
+check "a tag that only looks like a release isn't one" plans "$(both "$on_origaitv")"
 
 github
 ten=$(printf '9%.0s' {1..40})
-tags agentv-v agentv-v1.0.9 agentv-v1.0.10 agentv-v1.0.0
-answer "$OS/git/ref/tags/agentv-v1.0.10" --arg sha "$ten" '{object: {type: "commit", sha: $sha}}'
+tags origaitv-v origaitv-v1.0.9 origaitv-v1.0.10 origaitv-v1.0.0
+answer "$OS/git/ref/tags/origaitv-v1.0.10" --arg sha "$ten" '{object: {type: "commit", sha: $sha}}'
 answer "$OS/compare/$ten...agentv" '{status: "ahead"}'
 check "versions sort as numbers: 1.0.10 is newer than 1.0.9" plans "$(both "$ten")"
 
 github
 tags v0. v0.2.0 v0.3.0
-tags agentv-v agentv-v0.3.0
+tags origaitv-v origaitv-v0.3.0
 answer "$OS/git/ref/tags/v0.3.0" --arg sha "$unmerged" '{object: {type: "commit", sha: $sha}}'
-answer "$OS/git/ref/tags/agentv-v0.3.0" --arg sha "$one" '{object: {type: "commit", sha: $sha}}'
-check "one version tagged both ways is one release, and the agentv-v tag stands for it" plans "$(both "$one")"
+answer "$OS/git/ref/tags/origaitv-v0.3.0" --arg sha "$one" '{object: {type: "commit", sha: $sha}}'
+check "one version tagged both ways is one release, and the origaitv-v tag stands for it" plans "$(both "$one")"
 
 # --- The build workflow ------------------------------------------------------
 
@@ -287,7 +287,7 @@ from_the_plan() {
 for name in build sign publish; do
   check "the $name job builds only what the plan lists" from_the_plan "$name"
 done
-check "the ref a build fetches is the plan's" grep -qF 'AGENTV_REF: ${{ matrix.ref }}' "$workflow"
+check "the ref a build fetches is the plan's" grep -qF 'ORIGAITV_REF: ${{ matrix.ref }}' "$workflow"
 check "and nothing else in the workflow reads the ref typed by hand" \
   bash -c '[[ $(grep -c "inputs\.ref" "$1") == 1 ]] && grep -q "REF: \${{ inputs.ref }}" "$1"' _ "$workflow"
 check "which goes through bin/plan" grep -qF 'builds=$(bin/plan "$CHANNEL" "$REF")' "$workflow"
@@ -298,7 +298,7 @@ check "which goes through bin/plan" grep -qF 'builds=$(bin/plan "$CHANNEL" "$REF
 left=$(job left-out)
 has() { grep -qF -- "$1" <<<"$2"; }
 check "the plan is told where to write what it leaves out" \
-  has 'AGENTV_PLAN_REFUSED: ${{ runner.temp }}/refused' "$(job plan)"
+  has 'ORIGAITV_PLAN_REFUSED: ${{ runner.temp }}/refused' "$(job plan)"
 check "and hands the list on" has 'refused: ${{ steps.plan.outputs.refused }}' "$(job plan)"
 check "to a job that reads it" has 'REFUSED: ${{ needs.plan.outputs.refused }}' "$left"
 check "which has no more than the right to write issues" \
@@ -330,7 +330,7 @@ issues() {
   : >"$ISSUES/calls"
 }
 left_out_job() {
-  (cd "$ISSUES" && env PATH="$work/issues-bin:$PATH" GITHUB_REPOSITORY=someone/agentv-pkgs GITHUB_STEP_SUMMARY=/dev/null \
+  (cd "$ISSUES" && env PATH="$work/issues-bin:$PATH" GITHUB_REPOSITORY=someone/origaitv-pkgs GITHUB_STEP_SUMMARY=/dev/null \
     RUN=https://example.invalid/run REFUSED="$1" bash -e "$work/left-out.sh")
 }
 fails_having() {
@@ -354,7 +354,7 @@ passes_having() {
     esac
   done
 }
-why="agentv-os's agentv branch doesn't have tag=agentv-v1.0.0 (cccc), so it isn't built, signed or published."
+why="origaitv-os's agentv branch doesn't have tag=origaitv-v1.0.0 (cccc), so it isn't built, signed or published."
 refused=$(jq -cn --arg why "$why" '[$why]')
 open='[{"number": 8, "title": "The build left something out, and more"}, {"number": 7, "title": "The build left something out"}]'
 

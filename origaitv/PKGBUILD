@@ -1,22 +1,22 @@
-# AgenTV's own package: everything AgenTV adds to a box, beside Omarchy's
+# origaiTV's own package: everything origaiTV adds to a box, beside Omarchy's
 # package and never inside /usr/share/omarchy, which Omarchy's update owns
-# (ADR-025). CI builds it from agentv-os: at a release tag for stable, at the
-# newest green commit of agentv for edge.
+# (ADR-025). CI builds it from origaitv-os: at a release tag for stable, at the
+# newest green commit of origaitv for edge.
 #
 # Where the source is and where updates come from are set by the build, not
 # written here, so moving the repos to another owner changes no code:
-#   AGENTV_SOURCE    git URL of agentv-os
-#   AGENTV_REF       tag=agentv-v1.0.0 or commit=<sha>
-#   AGENTV_CHANNEL   stable or edge
-#   AGENTV_REPO_URL  https://github.com/<owner>/agentv-pkgs/releases/download
+#   ORIGAITV_SOURCE    git URL of origaitv-os
+#   ORIGAITV_REF       tag=origaitv-v1.0.0 or commit=<sha>
+#   ORIGAITV_CHANNEL   stable or edge
+#   ORIGAITV_REPO_URL  https://github.com/<owner>/origaitv-pkgs/releases/download
 
-pkgname=agentv
+pkgname=origaitv
 pkgver=0.0.0
 pkgrel=1
-pkgdesc="AgenTV, a TV OS whose own agent builds the apps it's missing. Powered by Omarchy"
+pkgdesc="origaiTV, a TV OS whose own agent builds the apps it's missing. Powered by Omarchy"
 arch=(any)
-url="${AGENTV_SOURCE%.git}"
-license=(MIT LicenseRef-AgenTV-sounds)
+url="${ORIGAITV_SOURCE%.git}"
+license=(MIT LicenseRef-origaiTV-sounds)
 options=(!debug)
 # nodejs runs the screen daemon's TypeScript as it is, gamescope runs Steam
 # in the TV session, and quickshell draws its toasts (ADR-031).
@@ -39,41 +39,41 @@ options=(!debug)
 # under bubblewrap.
 # The TV says its answers aloud (stage 8) through PipeWire's pw-play, in the
 # TV session, when the household's AI has a voice of its own. The TV has no
-# voice of its own: there's no agentv-voice package any more.
+# voice of its own: there's no origaitv-voice package any more.
 # The box check names the GPU from hwdata's pci.ids, asks libva-utils'
 # vainfo which video it decodes in hardware, and vulkan-tools' vulkaninfo
 # whether it's integrated or discrete.
 # Settings pairs Bluetooth game controllers through bluez, and looks for
 # them with bluez-utils' bluetoothctl. Omarchy has both today; naming them
 # keeps pairing working if it doesn't.
-depends=(omarchy agentv-keyring avahi bash bluez bluez-utils bubblewrap chromium cifs-utils curl dnsmasq esbuild ffmpeg gamescope git gnupg gvfs gvfs-nfs gvfs-smb hwdata hyprland iptables jq
+depends=(omarchy origaitv-keyring avahi bash bluez bluez-utils bubblewrap chromium cifs-utils curl dnsmasq esbuild ffmpeg gamescope git gnupg gvfs gvfs-nfs gvfs-smb hwdata hyprland iptables jq
   libva-utils mise mpv mpv-mpris networkmanager nodejs npm pacman-contrib pipewire polkit python quickshell smbclient udisks2 uwsm vulkan-tools)
 makedepends=(git)
-install=agentv.install
-source=("agentv-os::git+${AGENTV_SOURCE:?set AGENTV_SOURCE}#${AGENTV_REF:?set AGENTV_REF}")
+install=origaitv.install
+source=("origaitv-os::git+${ORIGAITV_SOURCE:?set ORIGAITV_SOURCE}#${ORIGAITV_REF:?set ORIGAITV_REF}")
 sha256sums=(SKIP)
 
 pkgver() {
-  cd agentv-os
+  cd origaitv-os
 
-  # A release is its tag: agentv-v1.0.0 is 1.0.0, and v0.2.0 was 0.2.0 while
-  # AgenTV was 0.x. Between releases it's the last one plus commits,
+  # A release is its tag: origaitv-v1.0.0 is 1.0.0, and v0.2.0 was 0.2.0 while
+  # origaiTV was 0.x. Between releases it's the last one plus commits,
   # 1.0.0.r3.gabc1234, which sorts after 1.0.0 and before 1.0.1.
   #
   # Omarchy's own tags are in this history too, v1.1.0 to v4.5.0, so a plain
-  # v tag is AgenTV's only when it's v0.*. The last release is the highest
+  # v tag is origaiTV's only when it's v0.*. The last release is the highest
   # version among the release tags this commit has behind it, whichever way
-  # its tag is written. A candidate's tag, agentv-v1.0.0-rc1, isn't a
+  # its tag is written. A candidate's tag, origaitv-v1.0.0-rc1, isn't a
   # release: a candidate's ISO carries edge's packages, and edge keeps
   # counting from the release before. A number with a leading zero
-  # (agentv-v01.0.0) isn't a release either: pacman would read it as 1.0.0.
+  # (origaitv-v01.0.0) isn't a release either: pacman would read it as 1.0.0.
   #
   # Only stable's package is ever a release's bare version. Edge's always
   # says its commit, 1.0.0.r0.gabc1234 on the release's own commit, so a
   # file's name tells the two apart.
   local last tag version described
   last=$(git tag --merged HEAD |
-    sed -nE 's/^(v(0\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*))|agentv-v((0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)))$/\2\5 \1/p' |
+    sed -nE 's/^(v(0\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*))|origaitv-v((0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)))$/\2\5 \1/p' |
     sort -k1,1V -k2,2r | tail -n 1)
   if [[ -z $last ]]; then
     printf '0.0.0.r%s.g%s' "$(git rev-list --count HEAD)" "$(git rev-parse --short=7 HEAD)"
@@ -84,7 +84,7 @@ pkgver() {
   # <tag>-<commits since>-g<sha>
   described=$(git describe --long --tags --match "$tag")
   described=${described#"$tag"-}
-  if [[ $described == 0-g* && ${AGENTV_CHANNEL:-} != "edge" ]]; then
+  if [[ $described == 0-g* && ${ORIGAITV_CHANNEL:-} != "edge" ]]; then
     printf '%s' "$version"
   else
     printf '%s.r%s.g%s' "$version" "${described%%-g*}" "${described#*-g}"
@@ -92,28 +92,28 @@ pkgver() {
 }
 
 package() {
-  : "${AGENTV_CHANNEL:?set AGENTV_CHANNEL}"
-  : "${AGENTV_REPO_URL:?set AGENTV_REPO_URL}"
-  cd agentv-os
+  : "${ORIGAITV_CHANNEL:?set ORIGAITV_CHANNEL}"
+  : "${ORIGAITV_REPO_URL:?set ORIGAITV_REPO_URL}"
+  cd origaitv-os
 
-  local share="$pkgdir/usr/share/agentv"
+  local share="$pkgdir/usr/share/origaitv"
   local file
 
-  # Commands. bin/agentv-check is the developers' gate, not the box's.
-  for file in bin/agentv bin/agentv-*; do
-    [[ ${file##*/} == agentv-check ]] && continue
+  # Commands. bin/origaitv-check is the developers' gate, not the box's.
+  for file in bin/origaitv bin/origaitv-*; do
+    [[ ${file##*/} == origaitv-check ]] && continue
     install -Dm755 "$file" "$pkgdir/usr/bin/${file##*/}"
   done
 
-  # AgenTV's migrations, run by its post-update hook.
+  # origaiTV's migrations, run by its post-update hook.
   install -d "$share/migrations"
-  for file in migrations/agentv/*.sh; do
+  for file in migrations/origaitv/*.sh; do
     [[ -f $file ]] && install -Dm644 "$file" "$share/migrations/${file##*/}"
   done
 
   # Hooks into Omarchy's update. First boot copies them into the owner's
   # ~/.config, and /etc/skel hands them to any user made after this package.
-  for file in config/omarchy/hooks/*/agentv; do
+  for file in config/omarchy/hooks/*/origaitv; do
     install -Dm644 "$file" "$share/$file"
     install -Dm644 "$file" "$pkgdir/etc/skel/.$file"
   done
@@ -124,13 +124,13 @@ package() {
   # the built-in apps, the home screen with its looks and their fonts, the
   # template that gives it the Omarchy
   # theme's colours, the phone companion's page, the TV setup screens with
-  # their soundtrack, and the router's phrase set, which agentv selftest
-  # S7.4 runs on the box. A folder that isn't in this commit of agentv-os
+  # their soundtrack, and the router's phrase set, which origaitv selftest
+  # S7.4 runs on the box. A folder that isn't in this commit of origaitv-os
   # yet is skipped, so older refs still build, and so is the stage 0 welcome
   # page, which stage 5's setup screens replace.
   for file in install/tv/*.sh daemon/*.py daemon/*.ts daemon/package.json session/*.lua session/toast/*.qml session/splash/*.qml \
     daemon/*/*.ts apps/package.json apps/contract/*.ts apps/builtin/*/* \
-    test/agentv/evals/package.json test/agentv/evals/router/*.ts test/agentv/evals/router/*.mts test/agentv/evals/router/*.json \
+    test/origaitv/evals/package.json test/origaitv/evals/router/*.ts test/origaitv/evals/router/*.mts test/origaitv/evals/router/*.json \
     launcher/*.html launcher/*.css launcher/*.ts launcher/package.json launcher/pages/*.ts launcher/sounds/*.ogg \
     launcher/looks/*.ts launcher/looks/*/* launcher/fonts/*.woff2 \
     companion-web/*.html companion-web/*.css companion-web/*.ts companion-web/manifest.json companion-web/*.png \
@@ -150,13 +150,13 @@ package() {
   fi
 
   # The TV session, for the login manager (ADR-031).
-  if [[ -f session/agentv.desktop ]]; then
-    install -Dm644 session/agentv.desktop "$pkgdir/usr/share/wayland-sessions/agentv.desktop"
+  if [[ -f session/origaitv.desktop ]]; then
+    install -Dm644 session/origaitv.desktop "$pkgdir/usr/share/wayland-sessions/origaitv.desktop"
   fi
 
   # The TV session's own units: the screen daemon, the virtual input device
-  # and the toasts, under agentv-tv.target, which the session starts itself.
-  # A user unit whose [Install] asks for it, such as agentv-theme.path, is on
+  # and the toasts, under origaitv-tv.target, which the session starts itself.
+  # A user unit whose [Install] asks for it, such as origaitv-theme.path, is on
   # in every session of the owner's.
   for unit in system/user/*.service system/user/*.target system/user/*.path; do
     [[ -f $unit ]] || continue
@@ -173,12 +173,12 @@ package() {
     [[ -f $rule ]] && install -Dm644 "$rule" "$pkgdir/usr/lib/udev/rules.d/${rule##*/}"
   done
 
-  # AgenTV's units, timers, path units, sockets and mounts. The package
+  # origaiTV's units, timers, path units, sockets and mounts. The package
   # enables each one its [Install] section asks for, so the installer needs
-  # no extra step: agentv-firstboot.service only ever runs once,
-  # agentv-update-tv.service, with no [Install], only runs when the TV starts
-  # it, agentv-key.path starts agentv-key.service when the daemon hands over
-  # a key, agentv-password.socket starts a root service for each desktop
+  # no extra step: origaitv-firstboot.service only ever runs once,
+  # origaitv-update-tv.service, with no [Install], only runs when the TV starts
+  # it, origaitv-key.path starts origaitv-key.service when the daemon hands over
+  # a key, origaitv-password.socket starts a root service for each desktop
   # password the daemon hands over, and the builder's folders are mounted
   # nosuid and nodev from boot (ADR-052).
   for unit in system/*.service system/*.timer system/*.path system/*.socket system/*.mount; do
@@ -190,7 +190,7 @@ package() {
     ln -s "../${unit##*/}" "$pkgdir/usr/lib/systemd/system/$target.wants/${unit##*/}"
   done
 
-  # Drop-ins for units that aren't AgenTV's, such as the one that keeps
+  # Drop-ins for units that aren't origaiTV's, such as the one that keeps
   # Plymouth's splash up until the TV session takes over from it (ADR-060).
   for conf in system/*.service.d/*.conf; do
     [[ -f $conf ]] && install -Dm644 "$conf" "$pkgdir/usr/lib/systemd/system/${conf#system/}"
@@ -202,7 +202,7 @@ package() {
     [[ -f $rule ]] && install -Dm644 "$rule" "$pkgdir/usr/share/polkit-1/rules.d/${rule##*/}"
   done
 
-  # NetworkManager's defaults for AgenTV, such as wake-on-LAN on every wired
+  # NetworkManager's defaults for origaiTV, such as wake-on-LAN on every wired
   # connection. Package-owned, so /etc stays the owner's.
   for conf in system/networkmanager/*.conf; do
     [[ -f $conf ]] && install -Dm644 "$conf" "$pkgdir/usr/lib/NetworkManager/conf.d/${conf##*/}"
@@ -220,23 +220,23 @@ package() {
     [[ -f $conf ]] && install -Dm644 "$conf" "$pkgdir/usr/lib/tmpfiles.d/${conf##*/}"
   done
 
-  # AgenTV's pacman hooks, such as the one that keeps its logo on the boot
+  # origaiTV's pacman hooks, such as the one that keeps its logo on the boot
   # splash when Omarchy's settings package puts Omarchy's back.
   for hook in system/*.hook; do
     [[ -f $hook ]] && install -Dm644 "$hook" "$pkgdir/usr/share/libalpm/hooks/${hook##*/}"
   done
 
-  # Where this box's updates come from, read by agentv-pacman-conf, where its
-  # apps come from, read by agentv app install, and AgenTV's own address,
+  # Where this box's updates come from, read by origaitv-pacman-conf, where its
+  # apps come from, read by origaitv app install, and origaiTV's own address,
   # which every request an app makes names (MET Norway asks for one). The
-  # app index is a release of agentv-apps, beside agentv-os (ADR-036).
+  # app index is a release of origaitv-apps, beside origaitv-os (ADR-036).
   printf '%s\n' \
-    "AGENTV_VERSION=$pkgver" \
-    "AGENTV_HOMEPAGE=${AGENTV_SOURCE%.git}" \
-    "AGENTV_CHANNEL=$AGENTV_CHANNEL" \
-    "AGENTV_REPO_URL=$AGENTV_REPO_URL" \
-    "AGENTV_TESTED_URL=${AGENTV_SOURCE%.git}/releases/download/tested" \
-    "AGENTV_INDEX_URL=${AGENTV_SOURCE%/agentv-os.git}/agentv-apps/releases/download/index" >"$share/settings"
+    "ORIGAITV_VERSION=$pkgver" \
+    "ORIGAITV_HOMEPAGE=${ORIGAITV_SOURCE%.git}" \
+    "ORIGAITV_CHANNEL=$ORIGAITV_CHANNEL" \
+    "ORIGAITV_REPO_URL=$ORIGAITV_REPO_URL" \
+    "ORIGAITV_TESTED_URL=${ORIGAITV_SOURCE%.git}/releases/download/tested" \
+    "ORIGAITV_INDEX_URL=${ORIGAITV_SOURCE%/origaitv-os.git}/origaitv-apps/releases/download/index" >"$share/settings"
   chmod 644 "$share/settings"
 
   # Every file the daemon imports is in the package, and so is every file the
@@ -258,7 +258,7 @@ package() {
   (( missing == 0 )) || return 1
 
   install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
-  # The home screen's sounds aren't MIT: they ship only with AgenTV.
+  # The home screen's sounds aren't MIT: they ship only with origaiTV.
   if [[ -f launcher/sounds/LICENSE ]]; then
     install -Dm644 launcher/sounds/LICENSE "$pkgdir/usr/share/licenses/$pkgname/sounds"
   fi

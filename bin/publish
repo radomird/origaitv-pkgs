@@ -4,7 +4,7 @@
 # channel. New packages go up first, then the databases that point at them,
 # and only then do old packages come down, so a box reading the release
 # mid-publish never finds a database pointing at a missing file. A channel
-# whose agentv needs a package the folder doesn't have isn't published at
+# whose origaitv needs a package the folder doesn't have isn't published at
 # all.
 #
 # Usage: bin/publish <channel> <repo-dir>
@@ -16,9 +16,9 @@ repo="${2:?usage: bin/publish <channel> <repo-dir>}"
 pkgs="${GITHUB_REPOSITORY:?}"
 ROOT=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 
-# Nothing goes up unless the channel is whole: its agentv.db lists agentv
-# and every one of AgenTV's packages agentv depends on. Removing old
-# packages below then can't take one agentv still needs, since each is in
+# Nothing goes up unless the channel is whole: its origaitv.db lists origaitv
+# and every one of origaiTV's packages origaitv depends on. Removing old
+# packages below then can't take one origaitv still needs, since each is in
 # this folder.
 "$ROOT/bin/channel-deps" --db "$repo"
 
@@ -26,7 +26,7 @@ ROOT=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 # (stable from v0.2.0 once 1.0.0 is out), and publishing it would put
 # every box's update check back on the older one. The same version again
 # is fine: a rebuild keeps each published file as it was. Going back on
-# purpose says so: AGENTV_PUBLISH_BACK=1, which only the Build run by hand
+# purpose says so: ORIGAITV_PUBLISH_BACK=1, which only the Build run by hand
 # with "back" ticked sets.
 new_version=$(jq -r '.version // empty' "$repo/release.json")
 [[ -n $new_version ]] || { echo "::error::$repo/release.json has no version." >&2; exit 1; }
@@ -39,8 +39,8 @@ if gh release view "$channel" -R "$pkgs" --json assets --jq '.assets[].name' 2>/
 fi
 if [[ -n $live_version && $live_version != "$new_version" &&
   $(printf '%s\n%s\n' "$live_version" "$new_version" | sort -V | tail -n 1) == "$live_version" ]]; then
-  if [[ ${AGENTV_PUBLISH_BACK:-} != "1" ]]; then
-    echo "::error::The $channel channel is on agentv $live_version, and this is $new_version, which is older. A channel only moves forward, so nothing is published. To go back on purpose, run the Build by hand with back ticked." >&2
+  if [[ ${ORIGAITV_PUBLISH_BACK:-} != "1" ]]; then
+    echo "::error::The $channel channel is on origaitv $live_version, and this is $new_version, which is older. A channel only moves forward, so nothing is published. To go back on purpose, run the Build by hand with back ticked." >&2
     exit 1
   fi
   echo "Going back on purpose: $channel moves from $live_version to $new_version."
@@ -51,8 +51,8 @@ if ! gh release view "$channel" -R "$pkgs" >/dev/null 2>&1; then
   prerelease=()
   [[ $channel == "stable" ]] || prerelease=(--prerelease)
   gh release create "$channel" -R "$pkgs" --target "${GITHUB_SHA:?}" \
-    --title "AgenTV packages: $channel" \
-    --notes "AgenTV's pacman repository for the $channel channel. Boxes read it from here; there's nothing to download by hand." \
+    --title "origaiTV packages: $channel" \
+    --notes "origaiTV's pacman repository for the $channel channel. Boxes read it from here; there's nothing to download by hand." \
     ${prerelease[@]+"${prerelease[@]}"}
 fi
 
@@ -65,9 +65,9 @@ done
 (( ${#new[@]} == 0 )) || gh release upload "$channel" -R "$pkgs" "${new[@]}"
 
 gh release upload "$channel" -R "$pkgs" --clobber \
-  "$repo"/agentv.db "$repo"/agentv.db.sig "$repo"/agentv.files "$repo"/agentv.files.sig \
-  "$repo"/agentv.db.tar.gz "$repo"/agentv.db.tar.gz.sig \
-  "$repo"/agentv.files.tar.gz "$repo"/agentv.files.tar.gz.sig \
+  "$repo"/origaitv.db "$repo"/origaitv.db.sig "$repo"/origaitv.files "$repo"/origaitv.files.sig \
+  "$repo"/origaitv.db.tar.gz "$repo"/origaitv.db.tar.gz.sig \
+  "$repo"/origaitv.files.tar.gz "$repo"/origaitv.files.tar.gz.sig \
   "$repo"/release.json "$repo"/release.json.sig
 
 while IFS= read -r asset; do

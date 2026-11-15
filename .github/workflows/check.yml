@@ -1,8 +1,8 @@
 name: Check
 
-# AgenTV's fast gate (ADR-019, layer 1) on every pull request and every push to
+# origaiTV's fast gate (ADR-019, layer 1) on every pull request and every push to
 # main: no em dashes, no secrets, no service automation, no owner in code and
-# shellcheck, with the same bin/agentv-check as the forks.
+# shellcheck, with the same bin/origaitv-check as the forks.
 
 on:
   pull_request:
@@ -40,31 +40,31 @@ jobs:
           sudo tar -xzf /tmp/gitleaks.tar.gz -C /usr/local/bin gitleaks
 
       - name: The fast gate
-        run: bin/agentv-check --ci
+        run: bin/origaitv-check --ci
 
       - name: The gate catches what it should
-        run: test/agentv/policy/check-test.sh --ci
+        run: test/origaitv/policy/check-test.sh --ci
 
       # How packages get signed, on a stand-in repository: a release only
-      # with AgenTV's key, a test run only with its throwaway one, and the
+      # with origaiTV's key, a test run only with its throwaway one, and the
       # key given to the signing job alone.
       - name: The signing scripts sign what they should, and nothing else
         run: test/sign-test.sh
 
       # What gets built, signed and published, on a stand-in GitHub: only
-      # a commit agentv-os's agentv branch has, whoever names it.
+      # a commit origaitv-os's agentv branch has, whoever names it.
       - name: The plan builds only what's merged
         run: test/plan-test.sh
 
       # The version a package gets, with the PKGBUILD's own pkgver() on a
-      # stand-in agentv-os: a release tag's, old style or new, and never a
+      # stand-in origaitv-os: a release tag's, old style or new, and never a
       # candidate's or one of Omarchy's.
-      - name: The package's version follows AgenTV's release tags
+      - name: The package's version follows origaiTV's release tags
         run: test/pkgver-test.sh
 
-      # A channel keeps every one of AgenTV's packages its agentv depends
+      # A channel keeps every one of origaiTV's packages its origaitv depends
       # on, and only ever moves forward.
-      - name: A channel keeps what its agentv needs
+      - name: A channel keeps what its origaitv needs
         run: test/channel-deps-test.sh
 
       # makepkg reads the PKGBUILDs as bash; check that they parse and that
@@ -72,6 +72,6 @@ jobs:
       - name: The PKGBUILDs parse
         run: |
           for pkgbuild in */PKGBUILD; do
-            AGENTV_SOURCE=https://example.invalid/agentv-os.git AGENTV_REF=commit=0 bash -n "$pkgbuild"
+            ORIGAITV_SOURCE=https://example.invalid/origaitv-os.git ORIGAITV_REF=commit=0 bash -n "$pkgbuild"
           done
-          cd agentv-keyring && sha256sum -c <(sed -n "s/^  '\([0-9a-f]\{64\}\)'  # \(.*\)$/\1  \2/p" PKGBUILD)
+          cd origaitv-keyring && sha256sum -c <(sed -n "s/^  '\([0-9a-f]\{64\}\)'  # \(.*\)$/\1  \2/p" PKGBUILD)
