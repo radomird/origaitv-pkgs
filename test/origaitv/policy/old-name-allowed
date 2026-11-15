@@ -1,0 +1,19 @@
+# Lines that may still say agentv or AgenTV (bin/origaitv-check): perl
+# patterns for "<file>:<line>". Everything else says origaiTV.
+
+# origaitv-os's agentv branch keeps its name, since the release environment
+# and the rulesets are tied to it. The plan, the workflows and their tests
+# name it.
+\bagentv branch\b
+^\.github/workflows/
+^bin/plan:
+^test/plan-test\.sh:
+
+# The signing key's secret keeps its name too.
+AGENTV_SIGNING_KEY
+
+# Saying once what the project used to be called.
+used to be called AgenTV
+
+# This check, which names what it looks for.
+^bin/origaitv-check:
