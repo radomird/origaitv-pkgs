@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Builds agentv and agentv-keyring into a pacman repository in
+# Builds origaitv and origaitv-keyring into a pacman repository in
 # <repo-dir>. A package that's already there at the same version is kept as
 # it is, so a box never sees two different files for one version. Runs as
 # root in an Arch container; makepkg runs as a throwaway user.
@@ -9,29 +9,29 @@
 # outside this container, so the signing key is never near pacman, makepkg
 # or the code being packaged. Nothing is published before that.
 #
-# With AGENTV_TEST_KEY, the public half of a throwaway key (bin/test-key),
-# the agentv-keyring built here trusts that key as well as AgenTV's. That's
+# With ORIGAITV_TEST_KEY, the public half of a throwaway key (bin/test-key),
+# the origaitv-keyring built here trusts that key as well as origaiTV's. That's
 # for a pull request's or a branch's test run, whose packages are signed
 # with the throwaway key and never leave the run. A release build never
 # sets it.
 #
 # Usage: bin/build <repo-dir>
-# Needs: AGENTV_CHANNEL, AGENTV_SOURCE, AGENTV_REF and AGENTV_REPO_URL.
+# Needs: ORIGAITV_CHANNEL, ORIGAITV_SOURCE, ORIGAITV_REF and ORIGAITV_REPO_URL.
 
 set -euo pipefail
 
 ROOT=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 repo=$(realpath "${1:?usage: bin/build <repo-dir>}")
 
-: "${AGENTV_CHANNEL:?}" "${AGENTV_SOURCE:?}" "${AGENTV_REF:?}" "${AGENTV_REPO_URL:?}"
+: "${ORIGAITV_CHANNEL:?}" "${ORIGAITV_SOURCE:?}" "${ORIGAITV_REF:?}" "${ORIGAITV_REPO_URL:?}"
 # A key has no business in this container, so a caller that hands one over
 # is stopped here, before pacman or makepkg run anywhere near it.
 if [[ -n ${AGENTV_SIGNING_KEY:-} ]]; then
   echo "::error::bin/build signs nothing, so it takes no AGENTV_SIGNING_KEY. Build first, then run bin/sign with the key, outside this container." >&2
   exit 1
 fi
-if [[ -n ${AGENTV_TEST_KEY:-} && ! -f $AGENTV_TEST_KEY ]]; then
-  echo "::error::AGENTV_TEST_KEY names a throwaway key's public half, and $AGENTV_TEST_KEY isn't a file" >&2
+if [[ -n ${ORIGAITV_TEST_KEY:-} && ! -f $ORIGAITV_TEST_KEY ]]; then
+  echo "::error::ORIGAITV_TEST_KEY names a throwaway key's public half, and $ORIGAITV_TEST_KEY isn't a file" >&2
   exit 1
 fi
 
@@ -42,31 +42,31 @@ arch_container_setup base-devel git jq
 useradd -m builder
 work=/home/builder/work
 mkdir -p "$work"
-cp -r "$ROOT/agentv" "$ROOT/agentv-keyring" "$work/"
+cp -r "$ROOT/origaitv" "$ROOT/origaitv-keyring" "$work/"
 chown -R builder:builder "$work"
 
 as_builder() {
   setpriv --reuid=builder --regid=builder --init-groups \
     env HOME=/home/builder GNUPGHOME=/home/builder/.gnupg \
-    AGENTV_CHANNEL="$AGENTV_CHANNEL" AGENTV_SOURCE="$AGENTV_SOURCE" \
-    AGENTV_REF="$AGENTV_REF" AGENTV_REPO_URL="$AGENTV_REPO_URL" "$@"
+    ORIGAITV_CHANNEL="$ORIGAITV_CHANNEL" ORIGAITV_SOURCE="$ORIGAITV_SOURCE" \
+    ORIGAITV_REF="$ORIGAITV_REF" ORIGAITV_REPO_URL="$ORIGAITV_REPO_URL" "$@"
 }
 
 as_builder mkdir -m 700 -p /home/builder/.gnupg
 
 # A test run's keyring trusts the run's throwaway key too, in the copy this
-# build works on. The files in the repo stay AgenTV's key alone.
-if [[ -n ${AGENTV_TEST_KEY:-} ]]; then
-  install -m 644 -o builder -g builder "$AGENTV_TEST_KEY" "$work/test-key.asc"
-  as_builder "$ROOT/bin/test-keyring" "$work/agentv-keyring" "$work/test-key.asc"
+# build works on. The files in the repo stay origaiTV's key alone.
+if [[ -n ${ORIGAITV_TEST_KEY:-} ]]; then
+  install -m 644 -o builder -g builder "$ORIGAITV_TEST_KEY" "$work/test-key.asc"
+  as_builder "$ROOT/bin/test-keyring" "$work/origaitv-keyring" "$work/test-key.asc"
 fi
 
 # What a published package's signature is checked against: the keys this
-# build's agentv-keyring carries, and no others.
-as_builder gpg --batch --quiet --yes --dearmor --output "$work/trusted.gpg" "$work/agentv-keyring/agentv.gpg"
+# build's origaitv-keyring carries, and no others.
+as_builder gpg --batch --quiet --yes --dearmor --output "$work/trusted.gpg" "$work/origaitv-keyring/origaitv.gpg"
 
 current=()
-for pkg in agentv-keyring agentv; do
+for pkg in origaitv-keyring origaitv; do
   cd "$work/$pkg"
 
   # Fetch the source and run pkgver(), so the package list has the version
@@ -76,8 +76,8 @@ for pkg in agentv-keyring agentv; do
   # The image layer's update test (S0.5) builds the same commit again with a
   # higher pkgrel, to have something newer to update to. makepkg puts pkgrel
   # back to 1 whenever pkgver() moves the version, so this goes in after it.
-  if [[ $pkg == agentv && -n ${AGENTV_PKGREL:-} ]]; then
-    as_builder sed -i "s/^pkgrel=.*/pkgrel=$AGENTV_PKGREL/" PKGBUILD
+  if [[ $pkg == origaitv && -n ${ORIGAITV_PKGREL:-} ]]; then
+    as_builder sed -i "s/^pkgrel=.*/pkgrel=$ORIGAITV_PKGREL/" PKGBUILD
   fi
   mapfile -t files < <(as_builder makepkg --packagelist)
 
@@ -101,34 +101,34 @@ for pkg in agentv-keyring agentv; do
   done
 done
 
-# A package that isn't built any more stays when this channel's agentv
+# A package that isn't built any more stays when this channel's origaitv
 # still depends on it, as it was published, with its signature. Stable's
-# agentv 0.2.0 depends on agentv-voice, which was last built for it. One of
-# AgenTV's packages the channel doesn't have at all stops the build here
+# origaitv 0.2.0 depends on origaitv-voice, which was last built for it. One of
+# origaiTV's packages the channel doesn't have at all stops the build here
 # (bin/channel-deps).
-agentv_file=$(printf '%s\n' "${current[@]}" | grep -E '^agentv-[0-9]' | head -n 1)
-kept=$("$ROOT/bin/channel-deps" "$repo" "$repo/$agentv_file")
+origaitv_file=$(printf '%s\n' "${current[@]}" | grep -E '^origaitv-[0-9]' | head -n 1)
+kept=$("$ROOT/bin/channel-deps" "$repo" "$repo/$origaitv_file")
 while IFS= read -r name; do
   [[ -n $name ]] || continue
   printf '%s\n' "${current[@]}" | grep -qxF "$name" && continue
   if [[ ! -f $repo/$name.sig ]]; then
-    echo "::error::agentv depends on ${name%%-[0-9]*}, and $name has no signature beside it, so it can't be kept." >&2
+    echo "::error::origaitv depends on ${name%%-[0-9]*}, and $name has no signature beside it, so it can't be kept." >&2
     exit 1
   fi
-  echo "Keeping $name, which agentv depends on and this build doesn't make"
+  echo "Keeping $name, which origaitv depends on and this build doesn't make"
   current+=("$name")
 done <<<"$kept"
 
 cd "$repo"
 
-# Only this build's packages, and what agentv needs from before, are in the
+# Only this build's packages, and what origaitv needs from before, are in the
 # repository.
 for file in *.pkg.tar.*; do
   [[ -f $file ]] || continue
   name=${file%.sig}
   printf '%s\n' "${current[@]}" | grep -qxF "$name" || rm -f "$file"
 done
-rm -f agentv.db* agentv.files*
+rm -f origaitv.db* origaitv.files*
 
 # A package kept from what's published has its signature. One built just now
 # has none yet: bin/sign gives it one.
@@ -138,18 +138,18 @@ for name in "${current[@]}"; do
   as_builder gpgv --quiet --keyring "$work/trusted.gpg" "$name.sig" "$name"
 done
 
-as_builder repo-add --quiet agentv.db.tar.gz "${current[@]}"
+as_builder repo-add --quiet origaitv.db.tar.gz "${current[@]}"
 
 # release.json, for Settings → Updates (ADR-025): the version, the date, a
 # security flag and What's new, signed like the packages (bin/sign). What's
-# new comes from agentv-os's release-notes/<version>.txt, up to five lines,
+# new comes from origaitv-os's release-notes/<version>.txt, up to five lines,
 # for a release; a first line of "security" marks a security release. An
 # edge build, which a candidate's ISO carries too, has a version like
 # 0.2.0.r668.gabc1234 and no notes of its own, so it shows the notes of the
 # release it leads to: the first release-notes/<version>.txt after its base
 # version. It never takes that release's security mark.
-version=$(printf '%s\n' "${current[@]}" | sed -nE 's/^agentv-([0-9][^-]*)-[0-9]+-any\.pkg\.tar\.zst$/\1/p' | head -n 1)
-source_dir="$work/agentv/src/agentv-os"
+version=$(printf '%s\n' "${current[@]}" | sed -nE 's/^origaitv-([0-9][^-]*)-[0-9]+-any\.pkg\.tar\.zst$/\1/p' | head -n 1)
+source_dir="$work/origaitv/src/origaitv-os"
 notes_file="$source_dir/release-notes/$version.txt"
 borrowed=false
 if [[ ! -f $notes_file && $version == *.r* ]]; then
@@ -172,7 +172,7 @@ if [[ -f $notes_file ]]; then
     notes=("${notes[@]:1}")
   fi
 fi
-jq -n --arg version "$version" --arg date "$date" --arg channel "$AGENTV_CHANNEL" --argjson security "$security" \
+jq -n --arg version "$version" --arg date "$date" --arg channel "$ORIGAITV_CHANNEL" --argjson security "$security" \
   '{version: $version, date: $date, channel: $channel, security: $security, notes: ($ARGS.positional[:5])}' \
   --args ${notes[@]+"${notes[@]}"} >release.json
 rm -f release.json.sig
@@ -180,7 +180,7 @@ cat release.json
 
 # GitHub release assets can't be symlinks, so pacman's names become copies.
 # bin/sign makes the signatures' copies.
-for db in agentv.db agentv.files; do
+for db in origaitv.db origaitv.files; do
   rm -f "$db" "$db.sig"
   cp "$db.tar.gz" "$db"
 done

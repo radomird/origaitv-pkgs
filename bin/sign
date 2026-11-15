@@ -11,9 +11,9 @@
 # environment before anything else happens. The keyring is gone when this
 # ends.
 #
-# The key has to be the one agentv-keyring trusts. With AGENTV_TEST_KEY, the
+# The key has to be the one origaitv-keyring trusts. With ORIGAITV_TEST_KEY, the
 # public half of a throwaway key (bin/test-key), it has to be that key
-# instead, and never AgenTV's own: that's a pull request's or a branch's
+# instead, and never origaiTV's own: that's a pull request's or a branch's
 # test run.
 #
 # Usage: bin/sign <repo-dir>
@@ -28,8 +28,8 @@ if [[ -z ${AGENTV_SIGNING_KEY:-} ]]; then
   echo "::error::AGENTV_SIGNING_KEY is empty. Packages are only ever published signed." >&2
   exit 1
 fi
-if [[ -n ${AGENTV_TEST_KEY:-} && ! -f $AGENTV_TEST_KEY ]]; then
-  echo "::error::AGENTV_TEST_KEY names a throwaway key's public half, and $AGENTV_TEST_KEY isn't a file" >&2
+if [[ -n ${ORIGAITV_TEST_KEY:-} && ! -f $ORIGAITV_TEST_KEY ]]; then
+  echo "::error::ORIGAITV_TEST_KEY names a throwaway key's public half, and $ORIGAITV_TEST_KEY isn't a file" >&2
   exit 1
 fi
 
@@ -56,11 +56,11 @@ fingerprint_of() {
   gpg --batch --with-colons --show-keys "$1" | awk -F: '$1 == "pub" { want = 1 } want && $1 == "fpr" { print $10; exit }'
 }
 
-release=$(cut -d: -f1 "$ROOT/agentv-keyring/agentv-trusted" | head -n 1)
-if [[ -n ${AGENTV_TEST_KEY:-} ]]; then
-  expected=$(fingerprint_of "$AGENTV_TEST_KEY")
+release=$(cut -d: -f1 "$ROOT/origaitv-keyring/origaitv-trusted" | head -n 1)
+if [[ -n ${ORIGAITV_TEST_KEY:-} ]]; then
+  expected=$(fingerprint_of "$ORIGAITV_TEST_KEY")
   if [[ $fpr == "$release" ]]; then
-    echo "::error::a test run signs with its throwaway key, never with AgenTV's own" >&2
+    echo "::error::a test run signs with its throwaway key, never with origaiTV's own" >&2
     exit 1
   fi
   if [[ $fpr != "$expected" ]]; then
@@ -69,7 +69,7 @@ if [[ -n ${AGENTV_TEST_KEY:-} ]]; then
   fi
   echo "Signing with this run's throwaway key, $fpr. Nothing signed with it is published."
 elif [[ $fpr != "$release" ]]; then
-  echo "::error::the signing key ($fpr) isn't the one agentv-keyring trusts ($release)" >&2
+  echo "::error::the signing key ($fpr) isn't the one origaitv-keyring trusts ($release)" >&2
   exit 1
 fi
 
@@ -95,7 +95,7 @@ shopt -s nullglob
 packages=(*.pkg.tar.zst)
 shopt -u nullglob
 (( ${#packages[@]} > 0 )) || { echo "::error::no packages in $repo to sign" >&2; exit 1; }
-for file in agentv.db.tar.gz agentv.files.tar.gz release.json; do
+for file in origaitv.db.tar.gz origaitv.files.tar.gz release.json; do
   [[ -f $file ]] || { echo "::error::$repo has no $file. Run bin/build first." >&2; exit 1; }
 done
 
@@ -110,14 +110,14 @@ for package in "${packages[@]}"; do
 done
 
 # These are made again by every build, so their signatures are too.
-for file in agentv.db.tar.gz agentv.files.tar.gz release.json; do
+for file in origaitv.db.tar.gz origaitv.files.tar.gz release.json; do
   sign "$file"
   verify "$file"
 done
 
 # GitHub release assets can't be symlinks, so pacman's names are copies
 # (bin/build), and so are their signatures.
-for db in agentv.db agentv.files; do
+for db in origaitv.db origaitv.files; do
   cmp -s "$db" "$db.tar.gz" || cp "$db.tar.gz" "$db"
   cp "$db.tar.gz.sig" "$db.sig"
 done

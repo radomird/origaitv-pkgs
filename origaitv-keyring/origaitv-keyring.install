@@ -1,7 +1,7 @@
-# Trust AgenTV's signing key, the way omarchy-keyring trusts Omarchy's.
+# Trust origaiTV's signing key, the way omarchy-keyring trusts Omarchy's.
 post_upgrade() {
   if usr/bin/pacman-key -l >/dev/null 2>&1; then
-    usr/bin/pacman-key --populate agentv
+    usr/bin/pacman-key --populate origaitv
   fi
 }
 

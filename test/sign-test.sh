@@ -36,19 +36,19 @@ refuses() {
   else pass "$name"; fi
 }
 
-release=$(cut -d: -f1 "$ROOT/agentv-keyring/agentv-trusted")
+release=$(cut -d: -f1 "$ROOT/origaitv-keyring/origaitv-trusted")
 
 # A repository the way bin/build leaves it: packages, databases and
 # release.json, none of them signed.
 new_repo() {
   rm -rf "$1"
   mkdir -p "$1"
-  for file in agentv-0.9.0-1-any.pkg.tar.zst agentv-keyring-20261022-1-any.pkg.tar.zst agentv-voice-1.2.0-1-x86_64.pkg.tar.zst \
-    agentv.db.tar.gz agentv.files.tar.gz; do
+  for file in origaitv-0.9.0-1-any.pkg.tar.zst origaitv-keyring-20261022-1-any.pkg.tar.zst origaitv-voice-1.2.0-1-x86_64.pkg.tar.zst \
+    origaitv.db.tar.gz origaitv.files.tar.gz; do
     printf 'stand-in for %s\n' "$file" >"$1/$file"
   done
-  cp "$1/agentv.db.tar.gz" "$1/agentv.db"
-  cp "$1/agentv.files.tar.gz" "$1/agentv.files"
+  cp "$1/origaitv.db.tar.gz" "$1/origaitv.db"
+  cp "$1/origaitv.files.tar.gz" "$1/origaitv.files"
   printf '{"version": "0.9.0"}\n' >"$1/release.json"
 }
 
@@ -58,7 +58,7 @@ check "bin/test-key makes a key" "$ROOT/bin/test-key" "$work/key"
 check "it leaves the key, its public half and its fingerprint" \
   test -s "$work/key/secret.asc" -a -s "$work/key/public.asc" -a -s "$work/key/fingerprint"
 test_fpr=$(cat "$work/key/fingerprint")
-check "the key isn't AgenTV's own" test "$test_fpr" != "$release"
+check "the key isn't origaiTV's own" test "$test_fpr" != "$release"
 check "only its owner can read the key" test "$(stat -c %a "$work/key/secret.asc")" = 600
 expires=$(gpg --batch --with-colons --show-keys "$work/key/public.asc" | awk -F: '$1 == "pub" { print $7 }')
 now=$(date +%s)
@@ -68,21 +68,21 @@ check "every run gets a key of its own" test "$(cat "$work/other/fingerprint")" 
 
 # --- bin/test-keyring --------------------------------------------------------
 
-cp -r "$ROOT/agentv-keyring" "$work/keyring"
+cp -r "$ROOT/origaitv-keyring" "$work/keyring"
 check "bin/test-keyring adds the run's key to a copy of the keyring" "$ROOT/bin/test-keyring" "$work/keyring" "$work/key/public.asc"
-listed=$(gpg --batch --with-colons --show-keys "$work/keyring/agentv.gpg" | awk -F: '$1 == "pub" { want = 1 } want && $1 == "fpr" { print $10; want = 0 }' | sort | paste -sd' ')
-check "the copy's agentv.gpg holds AgenTV's key and the run's, and no other" \
+listed=$(gpg --batch --with-colons --show-keys "$work/keyring/origaitv.gpg" | awk -F: '$1 == "pub" { want = 1 } want && $1 == "fpr" { print $10; want = 0 }' | sort | paste -sd' ')
+check "the copy's origaitv.gpg holds origaiTV's key and the run's, and no other" \
   test "$listed" = "$(printf '%s\n' "$release" "$test_fpr" | sort | paste -sd' ')"
-check "the copy's agentv-trusted names both" \
-  test "$(paste -sd' ' "$work/keyring/agentv-trusted")" = "$release:4: $test_fpr:4:"
+check "the copy's origaitv-trusted names both" \
+  test "$(paste -sd' ' "$work/keyring/origaitv-trusted")" = "$release:4: $test_fpr:4:"
 # The check the Check workflow runs on the real folder.
 check "the copy's PKGBUILD has the new files' checksums" \
   bash -c "cd '$work/keyring' && sha256sum -c <(sed -n \"s/^  '\\([0-9a-f]\\{64\\}\\)'  # \\(.*\\)\$/\\1  \\2/p\" PKGBUILD)"
-check "the keyring in the repo is still AgenTV's key alone" \
-  test "$(cat "$ROOT/agentv-keyring/agentv-trusted")" = "$release:4:"
+check "the keyring in the repo is still origaiTV's key alone" \
+  test "$(cat "$ROOT/origaitv-keyring/origaitv-trusted")" = "$release:4:"
 refuses "the same key isn't added twice" "$ROOT/bin/test-keyring" "$work/keyring" "$work/key/public.asc"
 cat "$work/key/public.asc" "$work/other/public.asc" >"$work/two.asc"
-cp -r "$ROOT/agentv-keyring" "$work/keyring-two"
+cp -r "$ROOT/origaitv-keyring" "$work/keyring-two"
 refuses "a file with two keys isn't a throwaway key" "$ROOT/bin/test-keyring" "$work/keyring-two" "$work/two.asc"
 
 # --- bin/sign ----------------------------------------------------------------
@@ -105,9 +105,9 @@ signed_by_test_key() {
 new_repo "$work/repo"
 : >"$work/gpgv-env"
 check "bin/sign signs a test run's repository with the run's key" \
-  env PATH="$work/bin:$PATH" AGENTV_SIGNING_KEY="$(cat "$work/key/secret.asc")" AGENTV_TEST_KEY="$work/key/public.asc" "$ROOT/bin/sign" "$work/repo"
-for file in agentv-0.9.0-1-any.pkg.tar.zst agentv-keyring-20261022-1-any.pkg.tar.zst agentv-voice-1.2.0-1-x86_64.pkg.tar.zst \
-  agentv.db.tar.gz agentv.files.tar.gz agentv.db agentv.files release.json; do
+  env PATH="$work/bin:$PATH" AGENTV_SIGNING_KEY="$(cat "$work/key/secret.asc")" ORIGAITV_TEST_KEY="$work/key/public.asc" "$ROOT/bin/sign" "$work/repo"
+for file in origaitv-0.9.0-1-any.pkg.tar.zst origaitv-keyring-20261022-1-any.pkg.tar.zst origaitv-voice-1.2.0-1-x86_64.pkg.tar.zst \
+  origaitv.db.tar.gz origaitv.files.tar.gz origaitv.db origaitv.files release.json; do
   check "$file has a good signature" signed_by_test_key "$work/repo/$file"
 done
 check "the key was out of the environment before anything else ran" \
@@ -115,18 +115,18 @@ check "the key was out of the environment before anything else ran" \
 check "it leaves no keyring behind" bash -c "! compgen -G '$work/repo/*gnupg*' && ! compgen -G '$work/repo/*.asc'"
 
 # A package that's published already keeps its exact signature.
-cp "$work/repo/agentv-voice-1.2.0-1-x86_64.pkg.tar.zst.sig" "$work/kept.sig"
-rm "$work/repo/agentv-0.9.0-1-any.pkg.tar.zst.sig"
-AGENTV_SIGNING_KEY="$(cat "$work/key/secret.asc")" AGENTV_TEST_KEY="$work/key/public.asc" "$ROOT/bin/sign" "$work/repo" >/dev/null
-check "a package that has its signature keeps it, byte for byte" cmp "$work/kept.sig" "$work/repo/agentv-voice-1.2.0-1-x86_64.pkg.tar.zst.sig"
-check "and one without gets one" signed_by_test_key "$work/repo/agentv-0.9.0-1-any.pkg.tar.zst"
+cp "$work/repo/origaitv-voice-1.2.0-1-x86_64.pkg.tar.zst.sig" "$work/kept.sig"
+rm "$work/repo/origaitv-0.9.0-1-any.pkg.tar.zst.sig"
+AGENTV_SIGNING_KEY="$(cat "$work/key/secret.asc")" ORIGAITV_TEST_KEY="$work/key/public.asc" "$ROOT/bin/sign" "$work/repo" >/dev/null
+check "a package that has its signature keeps it, byte for byte" cmp "$work/kept.sig" "$work/repo/origaitv-voice-1.2.0-1-x86_64.pkg.tar.zst.sig"
+check "and one without gets one" signed_by_test_key "$work/repo/origaitv-0.9.0-1-any.pkg.tar.zst"
 
 # A kept signature that isn't the signing key's stops the run.
 new_repo "$work/repo"
 gpg --batch --quiet --homedir "$(mkdir -m 700 "$work/other-home" && echo "$work/other-home")" --import "$work/other/secret.asc"
-gpg --batch --quiet --homedir "$work/other-home" --detach-sign --output "$work/repo/agentv-0.9.0-1-any.pkg.tar.zst.sig" "$work/repo/agentv-0.9.0-1-any.pkg.tar.zst"
+gpg --batch --quiet --homedir "$work/other-home" --detach-sign --output "$work/repo/origaitv-0.9.0-1-any.pkg.tar.zst.sig" "$work/repo/origaitv-0.9.0-1-any.pkg.tar.zst"
 refuses "a kept package signed by another key stops it" \
-  env AGENTV_SIGNING_KEY="$(cat "$work/key/secret.asc")" AGENTV_TEST_KEY="$work/key/public.asc" "$ROOT/bin/sign" "$work/repo"
+  env AGENTV_SIGNING_KEY="$(cat "$work/key/secret.asc")" ORIGAITV_TEST_KEY="$work/key/public.asc" "$ROOT/bin/sign" "$work/repo"
 
 nothing_signed() {
   ! compgen -G "$1/*.sig" >/dev/null
@@ -136,27 +136,27 @@ new_repo "$work/repo"
 refuses "without the key it stops" env -u AGENTV_SIGNING_KEY "$ROOT/bin/sign" "$work/repo"
 check "and signs nothing" nothing_signed "$work/repo"
 
-# A release run doesn't set AGENTV_TEST_KEY, so only AgenTV's own key signs.
+# A release run doesn't set ORIGAITV_TEST_KEY, so only origaiTV's own key signs.
 refuses "a throwaway key can't sign a release" env AGENTV_SIGNING_KEY="$(cat "$work/key/secret.asc")" "$ROOT/bin/sign" "$work/repo"
 check "and signs nothing" nothing_signed "$work/repo"
 
 refuses "a test run signs only with the key its keyring was built with" \
-  env AGENTV_SIGNING_KEY="$(cat "$work/other/secret.asc")" AGENTV_TEST_KEY="$work/key/public.asc" "$ROOT/bin/sign" "$work/repo"
+  env AGENTV_SIGNING_KEY="$(cat "$work/other/secret.asc")" ORIGAITV_TEST_KEY="$work/key/public.asc" "$ROOT/bin/sign" "$work/repo"
 check "and signs nothing" nothing_signed "$work/repo"
 
 refuses "two keys in the secret stop it" \
-  env AGENTV_SIGNING_KEY="$(cat "$work/key/secret.asc" "$work/other/secret.asc")" AGENTV_TEST_KEY="$work/key/public.asc" "$ROOT/bin/sign" "$work/repo"
+  env AGENTV_SIGNING_KEY="$(cat "$work/key/secret.asc" "$work/other/secret.asc")" ORIGAITV_TEST_KEY="$work/key/public.asc" "$ROOT/bin/sign" "$work/repo"
 
 rm "$work/repo/release.json"
 refuses "a repository bin/build didn't finish isn't signed" \
-  env AGENTV_SIGNING_KEY="$(cat "$work/key/secret.asc")" AGENTV_TEST_KEY="$work/key/public.asc" "$ROOT/bin/sign" "$work/repo"
+  env AGENTV_SIGNING_KEY="$(cat "$work/key/secret.asc")" ORIGAITV_TEST_KEY="$work/key/public.asc" "$ROOT/bin/sign" "$work/repo"
 
 # --- bin/build ---------------------------------------------------------------
 
 # It stops at the key, before it sets up a container or fetches anything,
 # so this runs anywhere.
-build_env=(AGENTV_CHANNEL=edge AGENTV_SOURCE=https://example.invalid/agentv-os.git AGENTV_REF=commit=0
-  AGENTV_REPO_URL=https://example.invalid/releases)
+build_env=(ORIGAITV_CHANNEL=edge ORIGAITV_SOURCE=https://example.invalid/origaitv-os.git ORIGAITV_REF=commit=0
+  ORIGAITV_REPO_URL=https://example.invalid/releases)
 mkdir "$work/built"
 refuses "bin/build stops when it's handed the signing key" \
   env "${build_env[@]}" AGENTV_SIGNING_KEY="$(cat "$work/key/secret.asc")" "$ROOT/bin/build" "$work/built"
