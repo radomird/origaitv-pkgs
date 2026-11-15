@@ -158,7 +158,10 @@ if listed=$(releases); then
 else
   refuse "Couldn't list origaitv-os's release tags, so stable wasn't looked at this time."
 fi
-if [[ -n $tag ]] && { (( all )) || ! published stable | grep -qE "^origaitv-$(version_of "$tag" | sed 's/\./\\./g')-[0-9]+-any\.pkg\.tar\.zst$"; }; then
+# A release that's on stable already isn't built again, and that counts
+# one published before the rename, under the old package name: its tag is
+# from code with no origaitv package in it, so it can't be built as one.
+if [[ -n $tag ]] && { (( all )) || ! published stable | grep -qE "^(origaitv|agentv)-$(version_of "$tag" | sed 's/\./\\./g')-[0-9]+-any\.pkg\.tar\.zst$"; }; then
   if commit=$(merged "tag=$tag"); then
     plan+=("$(jq -cn --arg ref "commit=$commit" '{channel: "stable", ref: $ref}')")
   fi

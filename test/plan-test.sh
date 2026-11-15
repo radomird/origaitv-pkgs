@@ -226,6 +226,11 @@ jq -n '{assets: [{name: "origaitv-0.2.0-1-any.pkg.tar.zst"}]}' >"$GITHUB_FAKE/re
 jq -n --arg sha "$head" '{assets: [{name: "origaitv-0.2.0.r3.g\($sha[0:7])-1-any.pkg.tar.zst"}]}' >"$GITHUB_FAKE/release-edge"
 check "what's published already isn't planned again" plans "[]"
 check "but --all plans it" plans "$(both "$on_origaitv")" --all
+# Stable's release from before the rename is published under the old
+# package name, and its tag has no origaitv package to build.
+jq -n '{assets: [{name: "agentv-0.2.0-1-any.pkg.tar.zst"}]}' >"$GITHUB_FAKE/release-stable"
+check "a release published before the rename, under the old name, isn't planned again" plans "[]"
+jq -n '{assets: [{name: "origaitv-0.2.0-1-any.pkg.tar.zst"}]}' >"$GITHUB_FAKE/release-stable"
 # git writes as much of a commit's name as it needs to tell commits apart,
 # and origaitv-os is big enough for nine.
 jq -n --arg sha "$head" '{assets: [{name: "origaitv-0.2.0.r532.g\($sha[0:9])-1-any.pkg.tar.zst"}]}' >"$GITHUB_FAKE/release-edge"
