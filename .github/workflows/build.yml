@@ -3,15 +3,15 @@ name: Build
 # Builds origaiTV's packages from origaitv-os, signs them, publishes the pacman
 # repository as the release named after its channel, then installs from it
 # the way a box does (ADR-025). stable follows origaitv-os's release tags, and
-# edge every commit of its agentv branch that passed the Check workflow.
+# edge every commit of its origaitv branch that passed the Check workflow.
 # Looks for something new every hour, and runs by hand for a channel and ref.
-# Either way, bin/plan lets through only a commit origaitv-os's agentv branch
+# Either way, bin/plan lets through only a commit origaitv-os's origaitv branch
 # has, before anything is built or signed.
 #
 # A release tag is origaitv-v1.0.0 from 1.0 on, and v0.2.0 before that. The
 # newest one is stable. A candidate's tag (origaitv-v1.0.0-rc1) builds
 # nothing here: its ISO carries edge's packages. When the hourly run leaves
-# something out, like a release tag that isn't on agentv, the run fails and
+# something out, like a release tag that isn't on origaitv, the run fails and
 # opens an issue, and the other channel still builds.
 #
 # Each channel goes through three jobs. The first builds, in an Arch
@@ -44,7 +44,7 @@ on:
         options: [edge, stable]
         default: edge
       ref:
-        description: "origaitv-os ref that its agentv branch has, like tag=origaitv-v1.0.0 or commit=<whole sha> (empty: what the channels would build next)"
+        description: "origaitv-os ref that its origaitv branch has, like tag=origaitv-v1.0.0 or commit=<whole sha> (empty: what the channels would build next)"
         type: string
         default: ""
       back:
@@ -91,7 +91,7 @@ jobs:
           echo "refused=$(jq -Rsc 'split("\n") | map(select(. != ""))' "$ORIGAITV_PLAN_REFUSED")" >>"$GITHUB_OUTPUT"
           echo "Builds: $builds" | tee -a "$GITHUB_STEP_SUMMARY"
 
-  # A ref the plan left out, like a release tag on a commit agentv doesn't
+  # A ref the plan left out, like a release tag on a commit origaitv doesn't
   # have, used to be one error line in an hourly run nobody opens. So it's
   # said where it's seen: this job fails, which turns the run red, and it
   # opens an issue here. The channel that was fine still builds. Once a run
@@ -125,7 +125,7 @@ jobs:
             echo
             sed 's/^/- /' <<<"$lines"
             echo
-            echo "A release is tagged on a commit origaitv-os's \`agentv\` branch has, as \`origaitv-v1.0.0\`. If the tag is on the wrong commit, delete it and tag the right one. The other channel was still built."
+            echo "A release is tagged on a commit origaitv-os's \`origaitv\` branch has, as \`origaitv-v1.0.0\`. If the tag is on the wrong commit, delete it and tag the right one. The other channel was still built."
             echo
             echo "The run: $RUN"
           } >body.md

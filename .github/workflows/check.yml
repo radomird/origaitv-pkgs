@@ -52,7 +52,7 @@ jobs:
         run: test/sign-test.sh
 
       # What gets built, signed and published, on a stand-in GitHub: only
-      # a commit origaitv-os's agentv branch has, whoever names it.
+      # a commit origaitv-os's origaitv branch has, whoever names it.
       - name: The plan builds only what's merged
         run: test/plan-test.sh
 
