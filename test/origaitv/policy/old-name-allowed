@@ -7,5 +7,5 @@ AGENTV_SIGNING_KEY
 
 # Stable's release from before the rename, published under the old package
 # name, and the plan's test of it.
-^bin/plan:.*\(origaitv\|agentv\)-
+^bin/plan:.*\^agentv-\$release
 ^test/plan-test\.sh:.*agentv-0\.2\.0-1-any

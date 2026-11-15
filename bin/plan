@@ -158,12 +158,17 @@ if listed=$(releases); then
 else
   refuse "Couldn't list origaitv-os's release tags, so stable wasn't looked at this time."
 fi
-# A release that's on stable already isn't built again, and that counts
-# one published before the rename, under the old package name: its tag is
-# from code with no origaitv package in it, so it can't be built as one.
-if [[ -n $tag ]] && { (( all )) || ! published stable | grep -qE "^(origaitv|agentv)-$(version_of "$tag" | sed 's/\./\\./g')-[0-9]+-any\.pkg\.tar\.zst$"; }; then
-  if commit=$(merged "tag=$tag"); then
-    plan+=("$(jq -cn --arg ref "commit=$commit" '{channel: "stable", ref: $ref}')")
+# A release that's on stable already isn't built again, unless --all says
+# so. One published before the rename, under the old package name, is never
+# built again, not even with --all: its tag is from code with no origaitv
+# package in it, so it can't be built as one.
+if [[ -n $tag ]]; then
+  on_stable=$(published stable)
+  release="$(version_of "$tag" | sed 's/\./\\./g')-[0-9]+-any\.pkg\.tar\.zst"
+  if ! grep -qE "^agentv-$release$" <<<"$on_stable" && { (( all )) || ! grep -qE "^origaitv-$release$" <<<"$on_stable"; }; then
+    if commit=$(merged "tag=$tag"); then
+      plan+=("$(jq -cn --arg ref "commit=$commit" '{channel: "stable", ref: $ref}')")
+    fi
   fi
 fi
 
