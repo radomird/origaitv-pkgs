@@ -2,6 +2,8 @@
 
 The packages your [origaiTV](https://github.com/radomird/origaitv-os) box installs and updates from. origaiTV is the world's first open-source agentic TV OS. Powered by [Omarchy](https://omarchy.org).
 
+origaiTV used to be called AgenTV, and so did these packages.
+
 There's nothing to download here by hand. The USB stick puts the packages on a new box, and after that your box keeps itself up to date from here.
 
 ## What's in it
