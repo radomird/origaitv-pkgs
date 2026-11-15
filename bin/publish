@@ -17,7 +17,7 @@ pkgs="${GITHUB_REPOSITORY:?}"
 ROOT=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 
 # Nothing goes up unless the channel is whole: its origaitv.db lists origaitv
-# and every one of origaiTV's packages origaitv depends on. Removing old
+# and every one of OrigaiTV's packages origaitv depends on. Removing old
 # packages below then can't take one origaitv still needs, since each is in
 # this folder.
 "$ROOT/bin/channel-deps" --db "$repo"
@@ -51,8 +51,8 @@ if ! gh release view "$channel" -R "$pkgs" >/dev/null 2>&1; then
   prerelease=()
   [[ $channel == "stable" ]] || prerelease=(--prerelease)
   gh release create "$channel" -R "$pkgs" --target "${GITHUB_SHA:?}" \
-    --title "origaiTV packages: $channel" \
-    --notes "origaiTV's pacman repository for the $channel channel. Boxes read it from here; there's nothing to download by hand." \
+    --title "OrigaiTV packages: $channel" \
+    --notes "OrigaiTV's pacman repository for the $channel channel. Boxes read it from here; there's nothing to download by hand." \
     ${prerelease[@]+"${prerelease[@]}"}
 fi
 

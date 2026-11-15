@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # Adds a test run's throwaway key (bin/test-key) to a copy of origaitv-keyring,
-# beside origaiTV's own: to origaitv.gpg, to origaitv-trusted, and to the PKGBUILD's
+# beside OrigaiTV's own: to origaitv.gpg, to origaitv-trusted, and to the PKGBUILD's
 # checksums. The package built from that copy makes a test box trust the
-# run's packages. origaiTV's own key stays, so the box still takes what's
+# run's packages. OrigaiTV's own key stays, so the box still takes what's
 # really published, such as the app index.
 #
 # bin/build runs it on its working copy when ORIGAITV_TEST_KEY is set. It's

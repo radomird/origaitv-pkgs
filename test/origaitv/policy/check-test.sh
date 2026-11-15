@@ -31,7 +31,7 @@ repo="$SANDBOX/fork"
 mkdir -p "$repo"
 cd "$repo"
 git init -q -b main
-git config user.name "origaiTV test"
+git config user.name "OrigaiTV test"
 git config user.email "test@example.invalid"
 git remote add origin "https://github.com/example-owner/origaitv-os.git"
 
@@ -45,18 +45,18 @@ git add -A
 git commit -q -m "Upstream release"
 git tag v1.0.0
 
-# origaiTV's additions.
+# OrigaiTV's additions.
 mkdir -p .github test/origaitv/policy
 cp "$ROOT/bin/origaitv-check" bin/
 cp "$ROOT"/test/origaitv/policy/service-* "$ROOT"/test/origaitv/policy/upstream-exceptions \
   "$ROOT"/test/origaitv/policy/owner-allowed test/origaitv/policy/
 printf 'v1.0.0\n' >.github/omarchy-base
 printf 'example/upstream\n' >.github/omarchy-upstream
-printf 'origaiTV. Powered by Omarchy.\n' >.github/README.md
+printf 'OrigaiTV. Powered by Omarchy.\n' >.github/README.md
 printf '#!/bin/bash\n\necho "hello"\n' >bin/origaitv-hello
 chmod +x bin/origaitv-hello
 git add -A
-git commit -q -m "Add origaiTV"
+git commit -q -m "Add OrigaiTV"
 clean=$(git rev-parse HEAD)
 
 reset_fork() {
@@ -118,7 +118,7 @@ expect_fail "a file named after the old name fails" "the old name is only where 
 
 mkdir -p test/origaitv/policy
 printf '# Saying once what the project used to be called.\nused to be called AgenTV\n' >test/origaitv/policy/old-name-allowed
-printf 'origaiTV used to be called AgenTV.\n' >notes.md
+printf 'OrigaiTV used to be called AgenTV.\n' >notes.md
 output=$(bin/origaitv-check ${ci_flag[@]+"${ci_flag[@]}"} 2>&1) || true
 [[ $output == *"ok - the old name is only where it has to be"* && $output != *"not ok - the old name"* ]] ||
   fail "a line the allowed list names may say the old name" "$output"
@@ -152,7 +152,7 @@ output=$(bin/origaitv-check ${ci_flag[@]+"${ci_flag[@]}"} 2>&1) || fail "a plain
 pass "a plain check mark is not an emoji"
 reset_fork
 
-printf 'Just origaiTV.\n' >.github/README.md
+printf 'Just OrigaiTV.\n' >.github/README.md
 expect_fail "a README without Powered by Omarchy fails" "Omarchy's attribution is present"
 
 if have shellcheck; then
@@ -203,21 +203,21 @@ expect_fail "a file with an unusual name is still scanned" "no em dashes"
 printf 'fine\n' >"$(printf 'two\nlines')"
 expect_fail "a file name with a newline fails" "file names have no control characters"
 
-# --- A repo of origaiTV's own has no Omarchy base ----------------------------
+# --- A repo of OrigaiTV's own has no Omarchy base ----------------------------
 
 own="$SANDBOX/own"
 mkdir -p "$own/bin" "$own/test/origaitv/policy"
 cd "$own"
 git init -q -b main
-git config user.name "origaiTV test"
+git config user.name "OrigaiTV test"
 git config user.email "test@example.invalid"
 git remote add origin "https://github.com/example-owner/origaitv-pkgs.git"
 cp "$repo/bin/origaitv-check" bin/
 cp "$repo"/test/origaitv/policy/* test/origaitv/policy/
 printf 'Permission is hereby granted, free of charge, to any person\n' >LICENSE
-printf 'origaiTV packages. Powered by Omarchy.\n' >README.md
+printf 'OrigaiTV packages. Powered by Omarchy.\n' >README.md
 git add -A
-git commit -q -m "Start origaiTV's own repo"
+git commit -q -m "Start OrigaiTV's own repo"
 
 output=$(bin/origaitv-check ${ci_flag[@]+"${ci_flag[@]}"} 2>&1) || fail "a repo with no Omarchy base passes" "$output"
 [[ $output == *"not a fork"* ]] || fail "a repo with no Omarchy base says so" "$output"

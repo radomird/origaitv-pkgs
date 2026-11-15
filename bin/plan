@@ -8,7 +8,7 @@
 #
 # A release tag is origaitv-v1.0.0 from 1.0 on, and v0.2.0 for the 0.x
 # releases before it. origaitv-os also carries Omarchy's own tags, v1.1.0 to
-# v4.5.0, so a plain v tag is origaiTV's only when it's v0.*. The newest
+# v4.5.0, so a plain v tag is OrigaiTV's only when it's v0.*. The newest
 # release is the one with the highest version, whichever way its tag is
 # written. A release candidate's tag, origaitv-v1.0.0-rc1, is never stable's:
 # a candidate's ISO carries edge's packages, and stable waits for the
@@ -45,7 +45,7 @@ fi
 
 os="repos/$owner/origaitv-os"
 
-# origaiTV's release tags: origaitv-v1.0.0, and v0.2.0 for a 0.x release. A
+# OrigaiTV's release tags: origaitv-v1.0.0, and v0.2.0 for a 0.x release. A
 # candidate's is origaitv-v1.0.0-rc1. Never v1.1.0 to v4.5.0, which are
 # Omarchy's.
 # A number in a version has no leading zero: origaitv-v01.0.0 would be the
@@ -76,7 +76,7 @@ merged() {
   case $ref in
     tag=*)
       if [[ ! ${ref#tag=} =~ ^($RELEASE|$CANDIDATE)$ ]]; then
-        refuse "$ref isn't one of origaiTV's release tags, like tag=origaitv-v1.0.0, tag=origaitv-v1.0.0-rc1 or tag=v0.2.0. A v1 to v4 tag in origaitv-os is Omarchy's."
+        refuse "$ref isn't one of OrigaiTV's release tags, like tag=origaitv-v1.0.0, tag=origaitv-v1.0.0-rc1 or tag=v0.2.0. A v1 to v4 tag in origaitv-os is Omarchy's."
         return 1
       fi
       # The tag by its exact name, then through a tag that has a message of

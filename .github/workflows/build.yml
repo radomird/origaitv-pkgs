@@ -1,6 +1,6 @@
 name: Build
 
-# Builds origaiTV's packages from origaitv-os, signs them, publishes the pacman
+# Builds OrigaiTV's packages from origaitv-os, signs them, publishes the pacman
 # repository as the release named after its channel, then installs from it
 # the way a box does (ADR-025). stable follows origaitv-os's release tags, and
 # edge every commit of its origaitv branch that passed the Check workflow.

@@ -1,6 +1,6 @@
 # Hosts of the services whose automation never goes into a public repo
 # (CLAUDE.md, ADR-017). bin/origaitv-check fails on any of these in a file
-# origaiTV adds. Perl regular expressions, matched without regard to case.
+# OrigaiTV adds. Perl regular expressions, matched without regard to case.
 
 disneyplus\.com
 disney-plus\.net

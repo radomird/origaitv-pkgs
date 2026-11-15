@@ -1,25 +1,23 @@
 # origaitv-pkgs
 
-The packages your [origaiTV](https://github.com/radomird/origaitv-os) box installs and updates from. origaiTV is the world's first open-source agentic TV OS. Powered by [Omarchy](https://omarchy.org).
-
-origaiTV used to be called AgenTV, and so did these packages.
+The packages your [OrigaiTV](https://github.com/radomird/origaitv-os) box installs and updates from. OrigaiTV is the world's first open-source agentic TV OS. Powered by [Omarchy](https://omarchy.org).
 
 There's nothing to download here by hand. The USB stick puts the packages on a new box, and after that your box keeps itself up to date from here.
 
 ## What's in it
 
-Your box keeps Omarchy's own `omarchy` package exactly as Omarchy ships it. origaiTV adds two packages next to it:
+Your box keeps Omarchy's own `omarchy` package exactly as Omarchy ships it. OrigaiTV adds two packages next to it:
 
-- **`origaitv`** is everything origaiTV adds on top of Omarchy: the TV's home, setup, the phone remote and the `origaitv` command. None of it goes into `/usr/share/omarchy/`, which is Omarchy's.
+- **`origaitv`** is everything OrigaiTV adds on top of Omarchy: the TV's home, setup, the phone remote and the `origaitv` command. None of it goes into `/usr/share/omarchy/`, which is Omarchy's.
 - **`origaitv-keyring`** holds the public key the packages are signed with.
 
-That way one update brings Arch, Omarchy and origaiTV along together, and your box takes a snapshot first so you can go back. On the TV it's _Settings > System > Updates_. In a terminal it's `origaitv update`, which runs `omarchy update` underneath.
+That way one update brings Arch, Omarchy and OrigaiTV along together, and your box takes a snapshot first so you can go back. On the TV it's _Settings > System > Updates_. In a terminal it's `origaitv update`, which runs `omarchy update` underneath.
 
 ## Stable and edge
 
 CI builds the packages from [origaitv-os](https://github.com/radomird/origaitv-os), signs them, and publishes a pacman repository here as a release, one for each channel:
 
-- **stable** has origaiTV's releases. A box installed from a release's ISO starts on it.
+- **stable** has OrigaiTV's releases. A box installed from a release's ISO starts on it.
 - **edge** has every origaitv-os commit that passes its checks. It's for trying what's next. A box installed from a release candidate's ISO, or from edge's, starts on it.
 
 A release candidate has no packages of its own. Its ISO carries edge's, from the commit it was cut on.
@@ -40,4 +38,4 @@ If an update didn't go right, [tell me what happened](https://github.com/radomir
 
 ## License
 
-MIT, like Omarchy. The `origaitv` package also carries origaiTV's menu sounds and setup music, which are all rights reserved, and fonts under the SIL Open Font License. Each keeps its licence file in the package. origaiTV isn't made or endorsed by the Omarchy project.
+MIT, like Omarchy. The `origaitv` package also carries OrigaiTV's menu sounds and setup music, which are all rights reserved, and fonts under the SIL Open Font License. Each keeps its licence file in the package. OrigaiTV isn't made or endorsed by the Omarchy project.

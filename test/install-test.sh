@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Installs origaiTV's packages from the published release the way a box does:
-# pacman trusts only origaiTV's key, the database and every package must be
+# Installs OrigaiTV's packages from the published release the way a box does:
+# pacman trusts only OrigaiTV's key, the database and every package must be
 # signed by it, the keyring package hands that trust on, and origaitv's own
 # origaitv-pacman-conf writes a repository line that works. Runs as root in a
 # fresh Arch container, after bin/publish.
@@ -55,20 +55,20 @@ pacman -Sy >/dev/null || fail "the $channel database downloads and its signature
 pass "the $channel database downloads and its signature checks out"
 
 # --nodeps twice: Omarchy's own package isn't in a plain Arch container, and
-# this checks origaiTV's packages, not Omarchy's.
+# this checks OrigaiTV's packages, not Omarchy's.
 pacman -S --noconfirm --nodeps --nodeps origaitv-keyring origaitv >/dev/null ||
   fail "origaitv and origaitv-keyring install with their signatures checked"
 pass "origaitv and origaitv-keyring install with their signatures checked"
 
-pacman-key --list-keys "$fpr" >/dev/null 2>&1 || fail "origaitv-keyring puts origaiTV's key in pacman's keyring"
-pass "origaitv-keyring puts origaiTV's key in pacman's keyring"
+pacman-key --list-keys "$fpr" >/dev/null 2>&1 || fail "origaitv-keyring puts OrigaiTV's key in pacman's keyring"
+pass "origaitv-keyring puts OrigaiTV's key in pacman's keyring"
 
 installed=$(pacman -Q origaitv | cut -d' ' -f2)
 [[ $installed == "$version-1" ]] || fail "the installed origaitv is $version (got $installed)"
 pass "the installed origaitv is $version"
 
 output=$(origaitv version)
-[[ $output == "origaiTV $version ($channel)"* ]] || fail "origaitv version names the version and channel (got: $output)"
+[[ $output == "OrigaiTV $version ($channel)"* ]] || fail "origaitv version names the version and channel (got: $output)"
 pass "origaitv version names the version and channel"
 
 [[ -f /usr/share/origaitv/config/omarchy/hooks/post-update.d/origaitv &&
@@ -121,7 +121,7 @@ if [[ -f /usr/bin/origaitv-app-install ]]; then
 fi
 
 # From stage 3 on: the built-in apps ship whole and pass the app contract's
-# checks as origaiTV's own, and the package names origaiTV's address for the
+# checks as OrigaiTV's own, and the package names OrigaiTV's address for the
 # User-Agent its apps' requests carry.
 if [[ -d /usr/share/origaitv/apps/builtin ]]; then
   for app in origaitv.clock origaitv.weather origaitv.music; do
@@ -136,8 +136,8 @@ if [[ -d /usr/share/origaitv/apps/builtin ]]; then
   [[ ! -e /usr/share/origaitv/apps/builtin/origaitv.weather/fixtures ]] || fail "an app's fixtures don't ship to the box"
   origaitv app validate --official /usr/share/origaitv/apps/builtin/* >/dev/null ||
     fail "the built-in apps pass the app contract's checks"
-  grep -q '^ORIGAITV_HOMEPAGE=https://' /usr/share/origaitv/settings || fail "the package names origaiTV's address"
-  pass "the built-in apps ship whole and pass the contract's checks, and the package names origaiTV's address"
+  grep -q '^ORIGAITV_HOMEPAGE=https://' /usr/share/origaitv/settings || fail "the package names OrigaiTV's address"
+  pass "the built-in apps ship whole and pass the contract's checks, and the package names OrigaiTV's address"
 fi
 
 # From stage 2 on: the home screen ships with its sounds, their own licence,
@@ -192,7 +192,7 @@ if [[ -f /usr/lib/systemd/system/origaitv-update-check.timer ]]; then
   [[ ! -e /usr/lib/systemd/system/multi-user.target.wants/origaitv-update-tv.service ]] ||
     fail "an update from the TV only runs when the TV starts it"
   [[ -L /usr/lib/systemd/system/multi-user.target.wants/origaitv-daemon.service ]] ||
-    fail "origaiTV's daemon is still enabled"
+    fail "OrigaiTV's daemon is still enabled"
   grep -q 'origaitv-update-tv.service' /usr/share/polkit-1/rules.d/50-origaitv-update.rules ||
     fail "polkit lets the TV start an update"
   pass "the daily update check is enabled, and the TV may start an update"
@@ -308,7 +308,7 @@ else
   pass "there's no origaitv-voice: origaitv installs without it, and still names pipewire"
 fi
 
-# Every module origaiTV's TypeScript imports is in the package: the daemon and
+# Every module OrigaiTV's TypeScript imports is in the package: the daemon and
 # the home screen import each other's files, and a missing one only shows
 # when the daemon starts or the TV draws the page. A builder recipe's
 # template isn't run from here: the builder copies it into a build's own
@@ -318,7 +318,7 @@ while IFS= read -r file; do
     [[ -f $(dirname "$file")/$module ]] || fail "${file#/usr/share/origaitv/} imports $module, which the package doesn't have"
   done < <(grep -oE "from \"\.\.?/[^\"]+\"" "$file" | sed -E 's/^from "(.*)"$/\1/')
 done < <(find /usr/share/origaitv -name '*.ts' -not -path '*/node_modules/*' -not -path '/usr/share/origaitv/builder/recipes/*/template/*')
-pass "every module origaiTV's TypeScript imports is in the package"
+pass "every module OrigaiTV's TypeScript imports is in the package"
 
 # From stage 6 on: the builds and the builder's home are mounted nosuid and
 # nodev from boot, so nothing set-user-ID the builder writes counts (ADR-052).
@@ -354,7 +354,7 @@ if [[ -f /usr/bin/origaitv-boot-splash ]]; then
   pass "the boot splash's drop-in for Plymouth and the TV session's splash ship"
 fi
 
-# Every origaiTV file a system unit runs is in the package, so a unit never
+# Every OrigaiTV file a system unit runs is in the package, so a unit never
 # points at a file an older package had, as the daemon's once pointed at the
 # stage 0 placeholder.
 for unit in /usr/lib/systemd/system/origaitv-*.service; do
@@ -362,12 +362,12 @@ for unit in /usr/lib/systemd/system/origaitv-*.service; do
     [[ -f $file ]] || fail "${unit##*/} runs $file, which the package doesn't have"
   done < <(grep -o '/usr/share/origaitv/[^ ]*' "$unit")
 done
-pass "every origaiTV file a system unit runs is in the package"
+pass "every OrigaiTV file a system unit runs is in the package"
 
 [[ ! -e /usr/bin/origaitv-check ]] || fail "the developers' gate isn't on the box"
 pass "the developers' gate isn't on the box"
 
-# What Omarchy does to pacman.conf, then what origaiTV does about it.
+# What Omarchy does to pacman.conf, then what OrigaiTV does about it.
 cp /etc/pacman.conf.arch /etc/pacman.conf
 origaitv-pacman-conf >/dev/null
 origaitv-pacman-conf --check >/dev/null || fail "origaitv-pacman-conf puts the repository back"

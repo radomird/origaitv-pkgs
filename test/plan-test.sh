@@ -159,13 +159,13 @@ check "a candidate's tag can be built as edge" \
   plans "[{\"channel\":\"edge\",\"ref\":\"commit=$on_origaitv\"}]" edge tag=origaitv-v1.0.0-rc1
 check "and never as stable" \
   stops "stable is never built from one" stable tag=origaitv-v1.0.0-rc1
-check "one of Omarchy's own tags isn't a release of origaiTV's, though origaitv has its commit" \
-  stops "isn't one of origaiTV's release tags" stable tag=v4.0.6
+check "one of Omarchy's own tags isn't a release of OrigaiTV's, though origaitv has its commit" \
+  stops "isn't one of OrigaiTV's release tags" stable tag=v4.0.6
 check "nor is v1.0.0: from 1.0 on the tag says origaitv" \
-  stops "isn't one of origaiTV's release tags" stable tag=v1.0.0
-check "nor an old-style candidate" stops "isn't one of origaiTV's release tags" edge tag=v0.10.0-rc1
+  stops "isn't one of OrigaiTV's release tags" stable tag=v1.0.0
+check "nor an old-style candidate" stops "isn't one of OrigaiTV's release tags" edge tag=v0.10.0-rc1
 for zero in origaitv-v01.0.0 origaitv-v1.00.0 v0.02.0 origaitv-v1.0.0-rc01 origaitv-v1.0.0-rc0; do
-  check "a number with a leading zero isn't a release: $zero" stops "isn't one of origaiTV's release tags" edge "tag=$zero"
+  check "a number with a leading zero isn't a release: $zero" stops "isn't one of OrigaiTV's release tags" edge "tag=$zero"
 done
 
 check "a commit origaitv doesn't have stops the run" \
@@ -181,7 +181,7 @@ check "a tag that isn't there stops the run" \
   stops "Couldn't find the commit" stable tag=v0.9.9
 check "a short commit isn't taken" stops "isn't a whole commit" edge commit=aaaaaaa
 check "a branch isn't taken as a commit" stops "isn't a whole commit" edge commit=some-branch
-check "nor as a tag" stops "isn't one of origaiTV's release tags" stable tag=some-branch
+check "nor as a tag" stops "isn't one of OrigaiTV's release tags" stable tag=some-branch
 check "nor any other kind of ref" stops "A ref is tag=origaitv-v1.0.0 or commit=<sha>" edge branch=some-branch
 check "a channel is edge or stable" stops "The channel is edge or stable" rc "commit=$on_origaitv"
 

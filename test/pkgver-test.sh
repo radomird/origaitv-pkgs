@@ -56,7 +56,7 @@ tag v1.1.0
 commit "omarchy 4"
 tag v4.0.6
 commit "origaitv starts"
-is "before any origaiTV release, Omarchy's tags don't count" stable "0.0.0.r3.g$(git -C "$repo" rev-parse --short=7 HEAD)"
+is "before any OrigaiTV release, Omarchy's tags don't count" stable "0.0.0.r3.g$(git -C "$repo" rev-parse --short=7 HEAD)"
 
 commit "0.2.0"
 tag v0.2.0

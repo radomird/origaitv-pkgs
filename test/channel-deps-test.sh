@@ -105,10 +105,10 @@ if deps "$edge" "$edge/origaitv-0.2.0.r542.gfc9e31531-1-any.pkg.tar.zst" && [[ $
   pass "an origaitv that doesn't need the voice doesn't keep it"
 else fail "an origaitv that doesn't need the voice doesn't keep it"; fi
 
-# What isn't origaiTV's own is pacman's to find, not the channel's.
+# What isn't OrigaiTV's own is pacman's to find, not the channel's.
 if deps "$edge" "$edge/origaitv-0.2.0.r542.gfc9e31531-1-any.pkg.tar.zst" && ! grep -qE "omarchy|pipewire" "$work/out"; then
-  pass "only origaiTV's own packages are the channel's to have"
-else fail "only origaiTV's own packages are the channel's to have"; fi
+  pass "only OrigaiTV's own packages are the channel's to have"
+else fail "only OrigaiTV's own packages are the channel's to have"; fi
 
 # bin/build keeps what bin/channel-deps prints, with its signature, before
 # it clears out what it didn't make.
