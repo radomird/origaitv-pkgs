@@ -230,6 +230,7 @@ check "but --all plans it" plans "$(both "$on_origaitv")" --all
 # package name, and its tag has no origaitv package to build.
 jq -n '{assets: [{name: "agentv-0.2.0-1-any.pkg.tar.zst"}]}' >"$GITHUB_FAKE/release-stable"
 check "a release published before the rename, under the old name, isn't planned again" plans "[]"
+check "not even with --all, which a push to main uses" plans "$edge_only" --all
 jq -n '{assets: [{name: "origaitv-0.2.0-1-any.pkg.tar.zst"}]}' >"$GITHUB_FAKE/release-stable"
 # git writes as much of a commit's name as it needs to tell commits apart,
 # and origaitv-os is big enough for nine.
