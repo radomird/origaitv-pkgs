@@ -13,7 +13,7 @@
 #
 # The key has to be the one origaitv-keyring trusts. With ORIGAITV_TEST_KEY, the
 # public half of a throwaway key (bin/test-key), it has to be that key
-# instead, and never origaiTV's own: that's a pull request's or a branch's
+# instead, and never OrigaiTV's own: that's a pull request's or a branch's
 # test run.
 #
 # Usage: bin/sign <repo-dir>
@@ -60,7 +60,7 @@ release=$(cut -d: -f1 "$ROOT/origaitv-keyring/origaitv-trusted" | head -n 1)
 if [[ -n ${ORIGAITV_TEST_KEY:-} ]]; then
   expected=$(fingerprint_of "$ORIGAITV_TEST_KEY")
   if [[ $fpr == "$release" ]]; then
-    echo "::error::a test run signs with its throwaway key, never with origaiTV's own" >&2
+    echo "::error::a test run signs with its throwaway key, never with OrigaiTV's own" >&2
     exit 1
   fi
   if [[ $fpr != "$expected" ]]; then

@@ -1,4 +1,4 @@
-# origaiTV's own package: everything origaiTV adds to a box, beside Omarchy's
+# OrigaiTV's own package: everything OrigaiTV adds to a box, beside Omarchy's
 # package and never inside /usr/share/omarchy, which Omarchy's update owns
 # (ADR-025). CI builds it from origaitv-os: at a release tag for stable, at the
 # newest green commit of origaitv for edge.
@@ -13,10 +13,10 @@
 pkgname=origaitv
 pkgver=0.0.0
 pkgrel=1
-pkgdesc="origaiTV, a TV OS whose own agent builds the apps it's missing. Powered by Omarchy"
+pkgdesc="OrigaiTV, a TV OS whose own agent builds the apps it's missing. Powered by Omarchy"
 arch=(any)
 url="${ORIGAITV_SOURCE%.git}"
-license=(MIT LicenseRef-origaiTV-sounds)
+license=(MIT LicenseRef-OrigaiTV-sounds)
 options=(!debug)
 # nodejs runs the screen daemon's TypeScript as it is, gamescope runs Steam
 # in the TV session, and quickshell draws its toasts (ADR-031).
@@ -57,11 +57,11 @@ pkgver() {
   cd origaitv-os
 
   # A release is its tag: origaitv-v1.0.0 is 1.0.0, and v0.2.0 was 0.2.0 while
-  # origaiTV was 0.x. Between releases it's the last one plus commits,
+  # OrigaiTV was 0.x. Between releases it's the last one plus commits,
   # 1.0.0.r3.gabc1234, which sorts after 1.0.0 and before 1.0.1.
   #
   # Omarchy's own tags are in this history too, v1.1.0 to v4.5.0, so a plain
-  # v tag is origaiTV's only when it's v0.*. The last release is the highest
+  # v tag is OrigaiTV's only when it's v0.*. The last release is the highest
   # version among the release tags this commit has behind it, whichever way
   # its tag is written. A candidate's tag, origaitv-v1.0.0-rc1, isn't a
   # release: a candidate's ISO carries edge's packages, and edge keeps
@@ -105,7 +105,7 @@ package() {
     install -Dm755 "$file" "$pkgdir/usr/bin/${file##*/}"
   done
 
-  # origaiTV's migrations, run by its post-update hook.
+  # OrigaiTV's migrations, run by its post-update hook.
   install -d "$share/migrations"
   for file in migrations/origaitv/*.sh; do
     [[ -f $file ]] && install -Dm644 "$file" "$share/migrations/${file##*/}"
@@ -173,7 +173,7 @@ package() {
     [[ -f $rule ]] && install -Dm644 "$rule" "$pkgdir/usr/lib/udev/rules.d/${rule##*/}"
   done
 
-  # origaiTV's units, timers, path units, sockets and mounts. The package
+  # OrigaiTV's units, timers, path units, sockets and mounts. The package
   # enables each one its [Install] section asks for, so the installer needs
   # no extra step: origaitv-firstboot.service only ever runs once,
   # origaitv-update-tv.service, with no [Install], only runs when the TV starts
@@ -190,7 +190,7 @@ package() {
     ln -s "../${unit##*/}" "$pkgdir/usr/lib/systemd/system/$target.wants/${unit##*/}"
   done
 
-  # Drop-ins for units that aren't origaiTV's, such as the one that keeps
+  # Drop-ins for units that aren't OrigaiTV's, such as the one that keeps
   # Plymouth's splash up until the TV session takes over from it (ADR-060).
   for conf in system/*.service.d/*.conf; do
     [[ -f $conf ]] && install -Dm644 "$conf" "$pkgdir/usr/lib/systemd/system/${conf#system/}"
@@ -202,7 +202,7 @@ package() {
     [[ -f $rule ]] && install -Dm644 "$rule" "$pkgdir/usr/share/polkit-1/rules.d/${rule##*/}"
   done
 
-  # NetworkManager's defaults for origaiTV, such as wake-on-LAN on every wired
+  # NetworkManager's defaults for OrigaiTV, such as wake-on-LAN on every wired
   # connection. Package-owned, so /etc stays the owner's.
   for conf in system/networkmanager/*.conf; do
     [[ -f $conf ]] && install -Dm644 "$conf" "$pkgdir/usr/lib/NetworkManager/conf.d/${conf##*/}"
@@ -220,14 +220,14 @@ package() {
     [[ -f $conf ]] && install -Dm644 "$conf" "$pkgdir/usr/lib/tmpfiles.d/${conf##*/}"
   done
 
-  # origaiTV's pacman hooks, such as the one that keeps its logo on the boot
+  # OrigaiTV's pacman hooks, such as the one that keeps its logo on the boot
   # splash when Omarchy's settings package puts Omarchy's back.
   for hook in system/*.hook; do
     [[ -f $hook ]] && install -Dm644 "$hook" "$pkgdir/usr/share/libalpm/hooks/${hook##*/}"
   done
 
   # Where this box's updates come from, read by origaitv-pacman-conf, where its
-  # apps come from, read by origaitv app install, and origaiTV's own address,
+  # apps come from, read by origaitv app install, and OrigaiTV's own address,
   # which every request an app makes names (MET Norway asks for one). The
   # app index is a release of origaitv-apps, beside origaitv-os (ADR-036).
   printf '%s\n' \
@@ -258,7 +258,7 @@ package() {
   (( missing == 0 )) || return 1
 
   install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
-  # The home screen's sounds aren't MIT: they ship only with origaiTV.
+  # The home screen's sounds aren't MIT: they ship only with OrigaiTV.
   if [[ -f launcher/sounds/LICENSE ]]; then
     install -Dm644 launcher/sounds/LICENSE "$pkgdir/usr/share/licenses/$pkgname/sounds"
   fi

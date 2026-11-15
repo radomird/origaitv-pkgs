@@ -4,11 +4,11 @@
 # matrix: [{"channel": "edge", "ref": "commit=<sha>"}, ...].
 #
 #   stable: origaitv-os's newest release tag, once it's not published yet
-#   edge:   the newest commit of agentv whose Check run passed, likewise
+#   edge:   the newest commit of origaitv whose Check run passed, likewise
 #
 # A release tag is origaitv-v1.0.0 from 1.0 on, and v0.2.0 for the 0.x
 # releases before it. origaitv-os also carries Omarchy's own tags, v1.1.0 to
-# v4.5.0, so a plain v tag is origaiTV's only when it's v0.*. The newest
+# v4.5.0, so a plain v tag is OrigaiTV's only when it's v0.*. The newest
 # release is the one with the highest version, whichever way its tag is
 # written. A release candidate's tag, origaitv-v1.0.0-rc1, is never stable's:
 # a candidate's ISO carries edge's packages, and stable waits for the
@@ -21,7 +21,7 @@
 # owner from GitHub's own context, so no owner is written here.
 #
 # Whatever names the ref, a tag, the Check run or a person, it's built only
-# when its commit is one origaitv-os's agentv branch has: the branch's newest
+# when its commit is one origaitv-os's origaitv branch has: the branch's newest
 # commit, an older one, or a release tag on one of those. A tag's name alone
 # isn't enough. So what gets signed and published is always merged code.
 # The plan carries the commit itself (commit=<sha>), for a tag too, so the
@@ -45,7 +45,7 @@ fi
 
 os="repos/$owner/origaitv-os"
 
-# origaiTV's release tags: origaitv-v1.0.0, and v0.2.0 for a 0.x release. A
+# OrigaiTV's release tags: origaitv-v1.0.0, and v0.2.0 for a 0.x release. A
 # candidate's is origaitv-v1.0.0-rc1. Never v1.1.0 to v4.5.0, which are
 # Omarchy's.
 # A number in a version has no leading zero: origaitv-v01.0.0 would be the
@@ -70,13 +70,13 @@ refuse() {
 }
 
 # Prints the commit a ref (tag=origaitv-v1.0.0 or commit=<sha>) is on, when
-# agentv has that commit. Otherwise says why not, and fails.
+# origaitv has that commit. Otherwise says why not, and fails.
 merged() {
   local ref=$1 sha kind status
   case $ref in
     tag=*)
       if [[ ! ${ref#tag=} =~ ^($RELEASE|$CANDIDATE)$ ]]; then
-        refuse "$ref isn't one of origaiTV's release tags, like tag=origaitv-v1.0.0, tag=origaitv-v1.0.0-rc1 or tag=v0.2.0. A v1 to v4 tag in origaitv-os is Omarchy's."
+        refuse "$ref isn't one of OrigaiTV's release tags, like tag=origaitv-v1.0.0, tag=origaitv-v1.0.0-rc1 or tag=v0.2.0. A v1 to v4 tag in origaitv-os is Omarchy's."
         return 1
       fi
       # The tag by its exact name, then through a tag that has a message of
@@ -102,9 +102,9 @@ merged() {
       return 1
       ;;
   esac
-  status=$(gh api "$os/compare/$sha...agentv" --jq .status 2>/dev/null) || status=""
+  status=$(gh api "$os/compare/$sha...origaitv" --jq .status 2>/dev/null) || status=""
   if [[ ! $status =~ ^(ahead|identical)$ ]]; then
-    refuse "origaitv-os's agentv branch doesn't have $ref ($sha), so it isn't built, signed or published. Only what's merged is."
+    refuse "origaitv-os's origaitv branch doesn't have $ref ($sha), so it isn't built, signed or published. Only what's merged is."
     return 1
   fi
   echo "$sha"
@@ -170,7 +170,7 @@ fi
 # Edge's package says which commit it's from, 1.0.0.r3.g<sha>, with as much
 # of the sha as git needs to tell commits apart: seven letters and digits
 # or more.
-sha=$(gh api "repos/$owner/origaitv-os/actions/workflows/check.yml/runs?branch=agentv&event=push&status=success&per_page=1" \
+sha=$(gh api "repos/$owner/origaitv-os/actions/workflows/check.yml/runs?branch=origaitv&event=push&status=success&per_page=1" \
   --jq '.workflow_runs[0].head_sha // empty')
 edge_has() {
   local file short

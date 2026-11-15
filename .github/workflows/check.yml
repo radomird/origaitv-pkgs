@@ -1,6 +1,6 @@
 name: Check
 
-# origaiTV's fast gate (ADR-019, layer 1) on every pull request and every push to
+# OrigaiTV's fast gate (ADR-019, layer 1) on every pull request and every push to
 # main: no em dashes, no secrets, no service automation, no owner in code and
 # shellcheck, with the same bin/origaitv-check as the forks.
 
@@ -46,23 +46,23 @@ jobs:
         run: test/origaitv/policy/check-test.sh --ci
 
       # How packages get signed, on a stand-in repository: a release only
-      # with origaiTV's key, a test run only with its throwaway one, and the
+      # with OrigaiTV's key, a test run only with its throwaway one, and the
       # key given to the signing job alone.
       - name: The signing scripts sign what they should, and nothing else
         run: test/sign-test.sh
 
       # What gets built, signed and published, on a stand-in GitHub: only
-      # a commit origaitv-os's agentv branch has, whoever names it.
+      # a commit origaitv-os's origaitv branch has, whoever names it.
       - name: The plan builds only what's merged
         run: test/plan-test.sh
 
       # The version a package gets, with the PKGBUILD's own pkgver() on a
       # stand-in origaitv-os: a release tag's, old style or new, and never a
       # candidate's or one of Omarchy's.
-      - name: The package's version follows origaiTV's release tags
+      - name: The package's version follows OrigaiTV's release tags
         run: test/pkgver-test.sh
 
-      # A channel keeps every one of origaiTV's packages its origaitv depends
+      # A channel keeps every one of OrigaiTV's packages its origaitv depends
       # on, and only ever moves forward.
       - name: A channel keeps what its origaitv needs
         run: test/channel-deps-test.sh

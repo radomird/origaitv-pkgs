@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Checks what bin/plan lets through to be built, signed and published: only
-# a commit origaitv-os's agentv branch has, whether a release tag, the Check
+# a commit origaitv-os's origaitv branch has, whether a release tag, the Check
 # run or a run by hand names it. And which tag is a release: origaitv-v1.0.0,
 # or v0.2.0 from the 0.x days, the highest version being stable's. Never a
 # candidate's tag, and never one of Omarchy's own v1 to v4 tags. A stand-in
@@ -107,12 +107,12 @@ github() {
   answer "$OS/git/ref/tags/v4.0.6" --arg sha "$on_origaitv" '{object: {type: "commit", sha: $sha}}'
   answer "$OS/git/ref/tags/origaitv-v1.0.0" --arg sha "$one" '{object: {type: "commit", sha: $sha}}'
   answer "$OS/git/ref/tags/origaitv-v1.0.0-rc1" --arg sha "$on_origaitv" '{object: {type: "commit", sha: $sha}}'
-  answer "$OS/actions/workflows/check.yml/runs?branch=agentv&event=push&status=success&per_page=1" \
+  answer "$OS/actions/workflows/check.yml/runs?branch=origaitv&event=push&status=success&per_page=1" \
     --arg sha "$head" '{workflow_runs: [{head_sha: $sha}]}'
-  answer "$OS/compare/$on_origaitv...agentv" '{status: "ahead"}'
-  answer "$OS/compare/$one...agentv" '{status: "ahead"}'
-  answer "$OS/compare/$head...agentv" '{status: "identical"}'
-  answer "$OS/compare/$unmerged...agentv" '{status: "diverged"}'
+  answer "$OS/compare/$on_origaitv...origaitv" '{status: "ahead"}'
+  answer "$OS/compare/$one...origaitv" '{status: "ahead"}'
+  answer "$OS/compare/$head...origaitv" '{status: "identical"}'
+  answer "$OS/compare/$unmerged...origaitv" '{status: "diverged"}'
 }
 
 plan() {
@@ -159,29 +159,29 @@ check "a candidate's tag can be built as edge" \
   plans "[{\"channel\":\"edge\",\"ref\":\"commit=$on_origaitv\"}]" edge tag=origaitv-v1.0.0-rc1
 check "and never as stable" \
   stops "stable is never built from one" stable tag=origaitv-v1.0.0-rc1
-check "one of Omarchy's own tags isn't a release of origaiTV's, though origaitv has its commit" \
-  stops "isn't one of origaiTV's release tags" stable tag=v4.0.6
+check "one of Omarchy's own tags isn't a release of OrigaiTV's, though origaitv has its commit" \
+  stops "isn't one of OrigaiTV's release tags" stable tag=v4.0.6
 check "nor is v1.0.0: from 1.0 on the tag says origaitv" \
-  stops "isn't one of origaiTV's release tags" stable tag=v1.0.0
-check "nor an old-style candidate" stops "isn't one of origaiTV's release tags" edge tag=v0.10.0-rc1
+  stops "isn't one of OrigaiTV's release tags" stable tag=v1.0.0
+check "nor an old-style candidate" stops "isn't one of OrigaiTV's release tags" edge tag=v0.10.0-rc1
 for zero in origaitv-v01.0.0 origaitv-v1.00.0 v0.02.0 origaitv-v1.0.0-rc01 origaitv-v1.0.0-rc0; do
-  check "a number with a leading zero isn't a release: $zero" stops "isn't one of origaiTV's release tags" edge "tag=$zero"
+  check "a number with a leading zero isn't a release: $zero" stops "isn't one of OrigaiTV's release tags" edge "tag=$zero"
 done
 
 check "a commit origaitv doesn't have stops the run" \
-  stops "agentv branch doesn't have commit=$unmerged" edge "commit=$unmerged"
+  stops "origaitv branch doesn't have commit=$unmerged" edge "commit=$unmerged"
 check "on stable too" \
-  stops "agentv branch doesn't have commit=$unmerged" stable "commit=$unmerged"
+  stops "origaitv branch doesn't have commit=$unmerged" stable "commit=$unmerged"
 check "a commit GitHub doesn't know stops the run" \
-  stops "agentv branch doesn't have" edge "commit=$(printf 'e%.0s' {1..40})"
+  stops "origaitv branch doesn't have" edge "commit=$(printf 'e%.0s' {1..40})"
 answer "$OS/git/ref/tags/v0.3.0" --arg sha "$unmerged" '{object: {type: "commit", sha: $sha}}'
 check "a release tag on a commit origaitv doesn't have stops the run" \
-  stops "agentv branch doesn't have tag=v0.3.0" stable tag=v0.3.0
+  stops "origaitv branch doesn't have tag=v0.3.0" stable tag=v0.3.0
 check "a tag that isn't there stops the run" \
   stops "Couldn't find the commit" stable tag=v0.9.9
 check "a short commit isn't taken" stops "isn't a whole commit" edge commit=aaaaaaa
 check "a branch isn't taken as a commit" stops "isn't a whole commit" edge commit=some-branch
-check "nor as a tag" stops "isn't one of origaiTV's release tags" stable tag=some-branch
+check "nor as a tag" stops "isn't one of OrigaiTV's release tags" stable tag=some-branch
 check "nor any other kind of ref" stops "A ref is tag=origaitv-v1.0.0 or commit=<sha>" edge branch=some-branch
 check "a channel is edge or stable" stops "The channel is edge or stable" rc "commit=$on_origaitv"
 
@@ -202,18 +202,18 @@ check "it never lists every tag, which would bring Omarchy's" \
 github
 answer "$OS/git/ref/tags/v0.2.0" --arg sha "$unmerged" '{object: {type: "commit", sha: $sha}}'
 check "a release tag on a commit origaitv doesn't have is left out, and edge still builds" plans "$edge_only"
-check "and the run says so" says "agentv branch doesn't have tag=v0.2.0"
-check "and so does the list the workflow opens an issue from" left_out "agentv branch doesn't have tag=v0.2.0"
+check "and the run says so" says "origaitv branch doesn't have tag=v0.2.0"
+check "and so does the list the workflow opens an issue from" left_out "origaitv branch doesn't have tag=v0.2.0"
 check "with --all as well" plans "$edge_only" --all
 
 github
-answer "$OS/compare/$head...agentv" '{status: "diverged"}'
+answer "$OS/compare/$head...origaitv" '{status: "diverged"}'
 check "a green commit origaitv no longer has is left out, and stable still builds" \
   plans "[{\"channel\":\"stable\",\"ref\":\"commit=$on_origaitv\"}]"
-check "and that's in the list too" left_out "agentv branch doesn't have commit=$head"
+check "and that's in the list too" left_out "origaitv branch doesn't have commit=$head"
 
 github
-forget "$OS/compare/$on_origaitv...agentv"
+forget "$OS/compare/$on_origaitv...origaitv"
 check "with no answer about a commit, it's left out" plans "$edge_only"
 
 github
@@ -267,7 +267,7 @@ github
 ten=$(printf '9%.0s' {1..40})
 tags origaitv-v origaitv-v1.0.9 origaitv-v1.0.10 origaitv-v1.0.0
 answer "$OS/git/ref/tags/origaitv-v1.0.10" --arg sha "$ten" '{object: {type: "commit", sha: $sha}}'
-answer "$OS/compare/$ten...agentv" '{status: "ahead"}'
+answer "$OS/compare/$ten...origaitv" '{status: "ahead"}'
 check "versions sort as numbers: 1.0.10 is newer than 1.0.9" plans "$(both "$ten")"
 
 github
@@ -359,7 +359,7 @@ passes_having() {
     esac
   done
 }
-why="origaitv-os's agentv branch doesn't have tag=origaitv-v1.0.0 (cccc), so it isn't built, signed or published."
+why="origaitv-os's origaitv branch doesn't have tag=origaitv-v1.0.0 (cccc), so it isn't built, signed or published."
 refused=$(jq -cn --arg why "$why" '[$why]')
 open='[{"number": 8, "title": "The build left something out, and more"}, {"number": 7, "title": "The build left something out"}]'
 

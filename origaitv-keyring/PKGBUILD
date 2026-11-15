@@ -1,11 +1,11 @@
-# The public key origaiTV's packages, release.json and tested.json are signed
+# The public key OrigaiTV's packages, release.json and tested.json are signed
 # with, for pacman's keyring, the way omarchy-keyring carries Omarchy's. Bump
 # pkgver when the key changes, and list a retired key in origaitv-revoked.
 
 pkgname=origaitv-keyring
 pkgver=20261022
 pkgrel=1
-pkgdesc="The key origaiTV's packages are signed with"
+pkgdesc="The key OrigaiTV's packages are signed with"
 arch=(any)
 license=(MIT)
 options=(!debug)

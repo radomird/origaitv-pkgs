@@ -58,7 +58,7 @@ check "bin/test-key makes a key" "$ROOT/bin/test-key" "$work/key"
 check "it leaves the key, its public half and its fingerprint" \
   test -s "$work/key/secret.asc" -a -s "$work/key/public.asc" -a -s "$work/key/fingerprint"
 test_fpr=$(cat "$work/key/fingerprint")
-check "the key isn't origaiTV's own" test "$test_fpr" != "$release"
+check "the key isn't OrigaiTV's own" test "$test_fpr" != "$release"
 check "only its owner can read the key" test "$(stat -c %a "$work/key/secret.asc")" = 600
 expires=$(gpg --batch --with-colons --show-keys "$work/key/public.asc" | awk -F: '$1 == "pub" { print $7 }')
 now=$(date +%s)
@@ -71,14 +71,14 @@ check "every run gets a key of its own" test "$(cat "$work/other/fingerprint")" 
 cp -r "$ROOT/origaitv-keyring" "$work/keyring"
 check "bin/test-keyring adds the run's key to a copy of the keyring" "$ROOT/bin/test-keyring" "$work/keyring" "$work/key/public.asc"
 listed=$(gpg --batch --with-colons --show-keys "$work/keyring/origaitv.gpg" | awk -F: '$1 == "pub" { want = 1 } want && $1 == "fpr" { print $10; want = 0 }' | sort | paste -sd' ')
-check "the copy's origaitv.gpg holds origaiTV's key and the run's, and no other" \
+check "the copy's origaitv.gpg holds OrigaiTV's key and the run's, and no other" \
   test "$listed" = "$(printf '%s\n' "$release" "$test_fpr" | sort | paste -sd' ')"
 check "the copy's origaitv-trusted names both" \
   test "$(paste -sd' ' "$work/keyring/origaitv-trusted")" = "$release:4: $test_fpr:4:"
 # The check the Check workflow runs on the real folder.
 check "the copy's PKGBUILD has the new files' checksums" \
   bash -c "cd '$work/keyring' && sha256sum -c <(sed -n \"s/^  '\\([0-9a-f]\\{64\\}\\)'  # \\(.*\\)\$/\\1  \\2/p\" PKGBUILD)"
-check "the keyring in the repo is still origaiTV's key alone" \
+check "the keyring in the repo is still OrigaiTV's key alone" \
   test "$(cat "$ROOT/origaitv-keyring/origaitv-trusted")" = "$release:4:"
 refuses "the same key isn't added twice" "$ROOT/bin/test-keyring" "$work/keyring" "$work/key/public.asc"
 cat "$work/key/public.asc" "$work/other/public.asc" >"$work/two.asc"
@@ -136,7 +136,7 @@ new_repo "$work/repo"
 refuses "without the key it stops" env -u AGENTV_SIGNING_KEY "$ROOT/bin/sign" "$work/repo"
 check "and signs nothing" nothing_signed "$work/repo"
 
-# A release run doesn't set ORIGAITV_TEST_KEY, so only origaiTV's own key signs.
+# A release run doesn't set ORIGAITV_TEST_KEY, so only OrigaiTV's own key signs.
 refuses "a throwaway key can't sign a release" env AGENTV_SIGNING_KEY="$(cat "$work/key/secret.asc")" "$ROOT/bin/sign" "$work/repo"
 check "and signs nothing" nothing_signed "$work/repo"
 

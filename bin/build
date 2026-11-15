@@ -10,7 +10,7 @@
 # or the code being packaged. Nothing is published before that.
 #
 # With ORIGAITV_TEST_KEY, the public half of a throwaway key (bin/test-key),
-# the origaitv-keyring built here trusts that key as well as origaiTV's. That's
+# the origaitv-keyring built here trusts that key as well as OrigaiTV's. That's
 # for a pull request's or a branch's test run, whose packages are signed
 # with the throwaway key and never leave the run. A release build never
 # sets it.
@@ -55,7 +55,7 @@ as_builder() {
 as_builder mkdir -m 700 -p /home/builder/.gnupg
 
 # A test run's keyring trusts the run's throwaway key too, in the copy this
-# build works on. The files in the repo stay origaiTV's key alone.
+# build works on. The files in the repo stay OrigaiTV's key alone.
 if [[ -n ${ORIGAITV_TEST_KEY:-} ]]; then
   install -m 644 -o builder -g builder "$ORIGAITV_TEST_KEY" "$work/test-key.asc"
   as_builder "$ROOT/bin/test-keyring" "$work/origaitv-keyring" "$work/test-key.asc"
@@ -104,7 +104,7 @@ done
 # A package that isn't built any more stays when this channel's origaitv
 # still depends on it, as it was published, with its signature. Stable's
 # origaitv 0.2.0 depends on origaitv-voice, which was last built for it. One of
-# origaiTV's packages the channel doesn't have at all stops the build here
+# OrigaiTV's packages the channel doesn't have at all stops the build here
 # (bin/channel-deps).
 origaitv_file=$(printf '%s\n' "${current[@]}" | grep -E '^origaitv-[0-9]' | head -n 1)
 kept=$("$ROOT/bin/channel-deps" "$repo" "$repo/$origaitv_file")

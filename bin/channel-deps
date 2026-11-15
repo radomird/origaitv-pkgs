@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Says which of origaiTV's own packages a channel's origaitv depends on, and
+# Says which of OrigaiTV's own packages a channel's origaitv depends on, and
 # checks the channel has each of them.
 #
 # A channel's packages aren't all built every time. origaitv-voice was built
@@ -16,7 +16,7 @@
 #       one of them isn't in <repo-dir>. bin/build keeps what it prints.
 #   bin/channel-deps --db <repo-dir>
 #       Checks <repo-dir> is a whole channel: one origaitv package, and its
-#       origaitv.db lists that origaitv and every one of origaiTV's packages it
+#       origaitv.db lists that origaitv and every one of OrigaiTV's packages it
 #       depends on, each with its file in <repo-dir>. bin/publish runs this
 #       before it uploads anything.
 #
@@ -44,7 +44,7 @@ info() {
   '
 }
 
-# What a package depends on whose name is one of origaiTV's, a name a line,
+# What a package depends on whose name is one of OrigaiTV's, a name a line,
 # with any version limit taken off.
 needs() {
   tar -xOf "$1" .PKGINFO 2>/dev/null | awk -F' = ' '$1 == "depend" { print $2 }' |
@@ -99,7 +99,7 @@ db() {
       stop "origaitv depends on $want, and origaitv.db doesn't list it (${file##*/} is in the folder). Nothing is published: a box couldn't install origaitv from it."
     [[ -s $file.sig ]] || stop "${file##*/} has no signature beside it."
   done < <(needs "$origaitv")
-  echo "origaitv.db lists origaitv and every one of origaiTV's packages it depends on."
+  echo "origaitv.db lists origaitv and every one of OrigaiTV's packages it depends on."
 }
 
 case ${1:-} in
