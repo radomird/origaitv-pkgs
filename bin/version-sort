@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# Sorts package versions the way pacman orders them, oldest first. Reads a
+# version a line, and prints them sorted.
+#
+# sort -V agrees with pacman on everything OrigaiTV's packages are called
+# but one thing: a build that counts from a candidate, 1.0.0rc6.r3.gabc1234,
+# is older than 1.0.0 to pacman, and sort -V puts it after. It does put a ~
+# before everything, so the candidates sort with one before their rc, and
+# it comes off again on the way out. No version of ours has a ~ of its own.
+#
+# test/version-order-test.sh checks this against pacman's own vercmp.
+#
+# Usage: bin/version-sort [-u] <versions
+
+set -euo pipefail
+
+unique=()
+if [[ ${1:-} == "-u" ]]; then
+  unique=(-u)
+  shift
+fi
+(( $# == 0 )) || { echo "usage: bin/version-sort [-u] <versions" >&2; exit 2; }
+
+sed -E 's/^([0-9]+\.[0-9]+\.[0-9]+)(rc[0-9])/\1~\2/' | sort -V ${unique[@]+"${unique[@]}"} | sed -E 's/^([0-9]+\.[0-9]+\.[0-9]+)~(rc[0-9])/\1\2/'

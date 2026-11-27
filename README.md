@@ -20,7 +20,7 @@ CI builds the packages from [origaitv-os](https://github.com/radomird/origaitv-o
 - **stable** has OrigaiTV's releases. A box installed from a release's ISO starts on it.
 - **edge** has every origaitv-os commit that passes its checks. It's for trying what's next. A box installed from a release candidate's ISO, or from edge's, starts on it.
 
-A release candidate has no packages of its own. Its ISO carries edge's, from the commit it was cut on.
+A release candidate has no packages of its own. Its ISO carries edge's, from the commit it was cut on. Edge's builds count from the last release or candidate: `1.0.0rc6.r12.gabc1234` is twelve commits after 1.0.0-rc6, and `1.0.0.r3.gabc1234` three after 1.0.0. Only a release on stable has a bare version, like `1.0.0`.
 
 To try edge, run `origaitv channel edge` and then `origaitv update`. `origaitv channel stable` takes you back, and your box picks up releases again from the next one.
 

@@ -3,9 +3,10 @@
 # Checks the version the origaitv package gets, with the PKGBUILD's own
 # pkgver() run against a small stand-in for origaitv-os: a release tag is its
 # version (origaitv-v1.0.0, and v0.2.0 from the 0.x days), commits after it
-# count from it, Omarchy's own v1 to v4 tags and a candidate's tag never
-# count, and edge's package always says its commit. Needs git and nothing
-# else: no makepkg, no network.
+# count from it, commits after a candidate's tag (origaitv-v1.0.0-rc6) count
+# from the candidate, Omarchy's own v1 to v4 tags never count, and edge's
+# package always says its commit. Needs git and nothing else: no makepkg,
+# no network. test/version-order-test.sh asks pacman how these sort.
 #
 # Usage: test/pkgver-test.sh
 
@@ -69,20 +70,44 @@ is "commits after a 0.x release count from it, on edge" edge "0.2.0.r2.g$(short)
 is "and on stable, when it's built off a tag" stable "0.2.0.r2.g$(short)"
 
 # A candidate is a tag on the way to a release. A tag with a message of
-# its own, as a release's can be.
+# its own, as a release's can be. Builds count from it, and it's written
+# rc1 with no hyphen, since a package's version can't have one.
 commit "the candidate"
 tag -a -m "1.0.0-rc1" origaitv-v1.0.0-rc1
-is "a candidate's tag changes nothing: edge still counts from 0.2.0" edge "0.2.0.r3.g$(short)"
-is "and so does stable" stable "0.2.0.r3.g$(short)"
+is "on a candidate's own commit, edge counts from the candidate" edge "1.0.0rc1.r0.g$(short)"
+is "a candidate is never a bare version, on stable either" stable "1.0.0rc1.r0.g$(short)"
 commit "after the candidate"
-is "after a candidate too" edge "0.2.0.r4.g$(short)"
+is "commits after a candidate count from it" edge "1.0.0rc1.r1.g$(short)"
+commit "more after the candidate"
+commit "rc2"
+tag origaitv-v1.0.0-rc2
+commit "after rc2"
+is "the next candidate takes over" edge "1.0.0rc2.r1.g$(short)"
+for rc in 9 10; do
+  commit "rc$rc"
+  tag -a -m "1.0.0-rc$rc" "origaitv-v1.0.0-rc$rc"
+done
+commit "after rc10"
+is "candidates sort as numbers: rc10 is after rc9" edge "1.0.0rc10.r1.g$(short)"
+tag origaitv-v1.0.0-rc01
+tag origaitv-v1.0.0-rc0
+tag origaitv-v1.0.0-rc
+tag origaitv-v1.0.0-rc11-test
+tag origaitv-v1.0.0rc12
+tag v1.0.0-rc13
+tag v0.3.0-rc1
+is "a tag that only looks like a candidate isn't one" edge "1.0.0rc10.r1.g$(short)"
 
 commit "1.0.0"
 tag -a -m "1.0.0" origaitv-v1.0.0
 is "origaitv-v1.0.0 is 1.0.0 on stable" stable 1.0.0
 is "and 1.0.0.r0 with its commit on edge" edge "1.0.0.r0.g$(short)"
+tag origaitv-v1.0.0-rc11
+is "a release is after its own candidates, even one tagged on its commit" stable 1.0.0
 commit "after 1.0.0"
 is "edge reads 1.0.0.rN.g<sha> after origaitv-v1.0.0" edge "1.0.0.r1.g$(short)"
+tag origaitv-v0.9.0-rc1
+is "an older release's candidate, tagged late, doesn't take over" edge "1.0.0.r1.g$(short)"
 
 # Both ways of writing a tag, side by side: the highest version is the
 # last release, not the tag that happens to be nearest.
@@ -103,6 +128,14 @@ is "versions sort as numbers: 1.0.10 is after 1.0.9" stable 1.0.10
 git -C "$repo" checkout --quiet -b side HEAD~2
 commit "a branch off before 1.0.9 and the late fix"
 is "a release this commit doesn't have behind it doesn't count" edge "1.0.0.r2.g$(short)"
+
+# The next release's candidates count again.
+git -C "$repo" checkout --quiet origaitv
+commit "1.0.11-rc1"
+tag origaitv-v1.0.11-rc1
+commit "after 1.0.11-rc1"
+is "a candidate after a release counts from the candidate" edge "1.0.11rc1.r1.g$(short)"
+is "and on stable, built off a tag, it says its commit" stable "1.0.11rc1.r1.g$(short)"
 
 (( failures == 0 )) || { echo "$failures failed" >&2; exit 1; }
 echo "all passed"

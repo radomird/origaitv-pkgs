@@ -25,6 +25,8 @@
 
 set -euo pipefail
 
+ROOT=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
+
 usage() {
   echo "usage: bin/channel-deps <repo-dir> <origaitv-package> | --db <repo-dir>" >&2
   exit 2
@@ -58,7 +60,7 @@ newest() {
     [[ -f $file ]] || continue
     read -r name version < <(info "$file") || continue
     [[ $name == "$want" ]] || continue
-    if [[ -z $best_version || $(printf '%s\n%s\n' "$best_version" "$version" | sort -V | tail -n 1) == "$version" ]]; then
+    if [[ -z $best_version || $(printf '%s\n%s\n' "$best_version" "$version" | "$ROOT/bin/version-sort" | tail -n 1) == "$version" ]]; then
       best=$file
       best_version=$version
     fi
