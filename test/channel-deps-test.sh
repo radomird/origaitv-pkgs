@@ -224,6 +224,21 @@ else fail "a channel's first publish goes out"; fi
 jq -n '{version: "1.0.0.r0.gabc1234"}' >"$whole/release.json"
 if moves 1.0.0 && uploaded; then pass "edge's 1.0.0.r0 is after 1.0.0, as pacman has it"
 else fail "edge's 1.0.0.r0 is after 1.0.0, as pacman has it"; fi
+# Edge counts from candidates: each step forward is published, and no step
+# back. The first is the move every box on edge makes once.
+steps=(0.2.0.r1157.g8880c58c5 1.0.0rc6.r0.g8880c58c5 1.0.0rc6.r5.gabc1234 1.0.0rc7.r0.gabc1234 1.0.0rc10.r0.gabc1234 1.0.0.r0.gabc1234 1.0.1rc1.r0.gabc1234)
+for (( at = 1; at < ${#steps[@]}; at++ )); do
+  before=${steps[at - 1]} after=${steps[at]}
+  jq -n --arg version "$after" '{version: $version}' >"$whole/release.json"
+  if moves "$before" && uploaded; then pass "edge moves from $before to $after"
+  else fail "edge moves from $before to $after"; fi
+  jq -n --arg version "$before" '{version: $version}' >"$whole/release.json"
+  if ! moves "$after" && ! uploaded; then pass "and not back from $after to $before"
+  else fail "and not back from $after to $before"; fi
+done
+jq -n '{version: "1.0.0"}' >"$whole/release.json"
+if moves 1.0.0rc10.r4.gabc1234 && uploaded; then pass "1.0.0 is after every candidate's build"
+else fail "1.0.0 is after every candidate's build"; fi
 if grep -qF "ORIGAITV_PUBLISH_BACK: \${{ github.event_name == 'workflow_dispatch' && inputs.back && '1' || '' }}" "$ROOT/.github/workflows/build.yml" &&
   [[ $(grep -c ORIGAITV_PUBLISH_BACK "$ROOT/.github/workflows/build.yml") == 1 ]]; then
   pass "only the Build run by hand with back ticked can go back"

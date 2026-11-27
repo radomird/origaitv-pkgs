@@ -57,10 +57,24 @@ jobs:
         run: test/plan-test.sh
 
       # The version a package gets, with the PKGBUILD's own pkgver() on a
-      # stand-in origaitv-os: a release tag's, old style or new, and never a
-      # candidate's or one of Omarchy's.
+      # stand-in origaitv-os: a release tag's, old style or new, a build's
+      # counted from the last release or candidate, and never from one of
+      # Omarchy's tags.
       - name: The package's version follows OrigaiTV's release tags
         run: test/pkgver-test.sh
+
+      # The order updates count on, asked of pacman itself in the container
+      # the packages are built in: every 0.2.0 build is older than every
+      # candidate's, rc10's are newer than rc9's, and all of them are older
+      # than 1.0.0. One pair the wrong way round fails here, and stops
+      # bin/build before it builds anything.
+      - name: pacman sorts every version the way updates count on
+        run: docker run --rm -v "$PWD:/src:ro" ghcr.io/archlinux/archlinux:latest /src/test/version-order-test.sh
+
+      # What's new for a build: a release's own notes, and for an edge
+      # build, a candidate's too, the notes of the release it leads to.
+      - name: A build shows the right release's notes
+        run: test/release-notes-test.sh
 
       # A channel keeps every one of OrigaiTV's packages its origaitv depends
       # on, and only ever moves forward.
